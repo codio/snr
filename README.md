@@ -18,7 +18,7 @@ Search for all `console` statements in all JavaScript files in the folders `src/
 `src/ext`.
 
 ```bash
-$ search console src/core/**/*.js src/ext/**/*.js
+$ search "-i console" "src/core/**/*.js" "src/ext/**/*.js"
 ```
 Sample Output
 

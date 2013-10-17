@@ -11,9 +11,7 @@ var args = process.argv.slice(2);
 
 var defaultArgs = args.shift().split(' ').concat(['-C', '2']);
 
-var paths = args;
-
-paths.forEach(function(location) {
+args.forEach(function(location) {
   glob(location, function (error, files) {
     if (error) return console.error(error);
     ag(files);
