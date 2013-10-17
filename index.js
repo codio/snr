@@ -2,7 +2,6 @@
 
 var Glob = require('glob').Glob;
 var spawn = require('child_process').spawn;
-var split = require('split');
 
 // Usage
 //
