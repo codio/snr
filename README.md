@@ -9,7 +9,7 @@ Simple wrapper around the silver searcher.
 Install the silver searcher as instructed [here].
 
 ```bash
-$ npm install git://github.com/Dignifiedquire/search.git
+$ npm install -g git://github.com/Dignifiedquire/search.git
 ```
 
 ## Usage
