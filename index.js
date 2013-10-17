@@ -20,6 +20,5 @@ args.forEach(function(location) {
 
 // Execute ag on a list of files
 function ag(files) {
-  console.log(defaultArgs.concat(files));
   var child = spawn('ag', defaultArgs.concat(files), {customFds: [0, 1, 2]});
 }
