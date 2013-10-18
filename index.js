@@ -100,7 +100,7 @@ async.mapSeries(patterns, search, function(err) {
 function search(location, cb) {
   glob(location, function (error, files) {
     if (error) return cb(error);
-
+    if (files.length === 0) return console.error('No files found');
     // Spawn the ack process
     var child = spawn('ack', ackArgs.concat(searchPattern).concat(files));
 
