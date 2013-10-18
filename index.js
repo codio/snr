@@ -5,8 +5,7 @@ var spawn = require('child_process').spawn;
 var split = require('split');
 var async = require('async');
 var dashdash = require('dashdash');
-
-
+var sh = require('execSync');
 
 
 // Argument Handling
@@ -65,6 +64,9 @@ if (opts.help) {
   process.exit(0);
 }
 
+// ack or ack-grep
+var cmd = sh.run('hash ack-grep 2>/dev/null') === 1 ? 'ack' : 'ack-grep';
+
 
 // Result Counter
 var resultsCount = 0;
@@ -102,7 +104,7 @@ function search(location, cb) {
     if (error) return cb(error);
     if (files.length === 0) return console.error('No files found');
     // Spawn the ack process
-    var child = spawn('ack', ackArgs.concat(searchPattern).concat(files));
+    var child = spawn(cmd, ackArgs.concat(searchPattern).concat(files));
 
     child.stdout.pipe(split())
       .on('data', function(line) {
