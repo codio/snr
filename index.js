@@ -81,7 +81,7 @@ var maxResults = opts.max_result_count;
 var patterns = opts._args.slice(1);
 
 // Create arguments for ack
-var ackArgs = ['-H'];
+var ackArgs = ['-H', '--flush', '--noheading', '-C', '2'];
 
 if (opts.ignore_case) ackArgs.push('-i');
 if (opts.literal) ackArgs.push('-Q');
@@ -108,13 +108,20 @@ function search(location, cb) {
 
     child.stdout.pipe(split())
       .on('data', function(line) {
-        if (line.trim().length > 0) {
-          if (maxResults && resultsCount === maxResults) {
-            return child.kill('SIGHUP');
-          }
-          console.log(line);
+        line = line.trim();
+        if (line.length === 0) {
+          return;
+        }
+
+        if (line === '--') {
           resultsCount++;
         }
+
+        if (maxResults && resultsCount >= maxResults) {
+          return child.kill('SIGHUP');
+        }
+        console.log(line);
+
       })
       .on('end', function() {
         cb();
