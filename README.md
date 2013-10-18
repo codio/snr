@@ -31,7 +31,6 @@ usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]
 options:
     -i, --ignore-case       Ignore case distinctions in PATTERN.
     -Q, --literal           Quote all metacharacters; PATTERN is literal.
-    --color                 Higlight matched text.
     --max-result-count=NUM  Stop after NUM results.
     --replace=REPlACE       Replace all matches with REPLACE.
     -h, --help              Print this help and exit.

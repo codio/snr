@@ -22,11 +22,6 @@ var options = [
     help: 'Quote all metacharacters; PATTERN is literal.'
   },
   {
-    name: 'color',
-    type: 'bool',
-    help: 'Higlight matched text.'
-  },
-  {
     name: 'max-result-count',
     type: 'number',
     helpArg: 'NUM',
@@ -80,12 +75,14 @@ var maxResults = opts.max_result_count;
 // File patterns
 var patterns = opts._args.slice(1);
 
+// Match the color code for background orange.
+var matchRegexp = new RegExp(/[\u001b]\[30;43m/);
+
 // Create arguments for ack
-var ackArgs = ['-H', '--flush', '--noheading', '-C', '2'];
+var ackArgs = ['-H', '--flush', '--heading', '-C', '2', '--color'];
 
 if (opts.ignore_case) ackArgs.push('-i');
 if (opts.literal) ackArgs.push('-Q');
-if (opts.color) ackArgs.push('--color')
 
 
 // Execute the search in series on all patterns.
@@ -106,26 +103,48 @@ function search(location, cb) {
     // Spawn the ack process
     var child = spawn(cmd, ackArgs.concat(searchPattern).concat(files));
 
+    var stopIn = -1;
+    var stopped = false;
+
     child.stdout.pipe(split())
       .on('data', function(line) {
+        if (stopped) return;
+
         line = line.trim();
         if (line.length === 0) {
           return;
         }
 
-        if (line === '--') {
-          resultsCount++;
-        }
+        // Count all occurrences of the match in the line
+        var matchesCount = line.match(matchRegexp)
+        resultsCount += matchesCount ? matchesCount.length : 0;
 
-        if (maxResults && resultsCount >= maxResults) {
+        if (stopIn === 0) {
+          stopped = true;
           return child.kill('SIGHUP');
         }
+
+        // Output
         console.log(line);
 
+        // Decrement stopIn after output.
+        if (stopIn > 0) return stopIn--;
+
+        // If we are over the maximum stop the process and exit.
+        if (stopIn === -1 && maxResults && resultsCount >= maxResults) {
+          stopIn = 2;
+        }
       })
       .on('end', function() {
         cb();
       });
     child.stderr.pipe(process.stderr);
   });
+}
+
+
+// Detect all matches in a line
+function countMatches(line) {
+  //  Example match: \u001b[30;43mconsole\u001b[0m
+  return line.match(matchRegexp).length;
 }
