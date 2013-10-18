@@ -27,12 +27,13 @@ $ search --max-result-count 100 --literal --replace hello console "src/core/**/*
 ## Options
 
 ```bash
-search --help
-Usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]
-Options:
-  -i, --ignore-case             Ignore case distinctions in PATTERN
-  -Q, --literal                 Quote all metacharacters; PATTERN is literal
-  --max-result-count [NUM]      Stop after NUM results
-  --replace [REPLACE]           Replace all matches with REPLACE
+usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]
+options:
+    -i, --ignore-case       Ignore case distinctions in PATTERN.
+    -Q, --literal           Quote all metacharacters; PATTERN is literal.
+    --color                 Higlight matched text.
+    --max-result-count=NUM  Stop after NUM results.
+    --replace=REPlACE       Replace all matches with REPLACE.
+    -h, --help              Print this help and exit.
 ```
 

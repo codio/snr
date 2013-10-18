@@ -4,20 +4,95 @@ var glob = require('glob');
 var spawn = require('child_process').spawn;
 var split = require('split');
 var async = require('async');
+var dashdash = require('dashdash');
 
-// Usage
-//
-// search "[ag OPTIONS] PATTERN" PATH [PATH...]
 
-var args = process.argv.slice(2);
 
-var defaultArgs = args.shift().split(' ');
 
-// Global counter
-var counter = 0;
+// Argument Handling
 
-async.mapSeries(args, search, function(err) {
-  console.log('Found ' + counter + ' matches.');
+var options = [
+  {
+    names: ['ignore-case', 'i'],
+    type: 'bool',
+    help: 'Ignore case distinctions in PATTERN.'
+  },
+  {
+    names: ['literal', 'Q'],
+    type: 'bool',
+    help: 'Quote all metacharacters; PATTERN is literal.'
+  },
+  {
+    name: 'color',
+    type: 'bool',
+    help: 'Higlight matched text.'
+  },
+  {
+    name: 'max-result-count',
+    type: 'number',
+    helpArg: 'NUM',
+    help: 'Stop after NUM results.'
+  },
+  {
+    name: 'replace',
+    type: 'string',
+    helpArg: 'REPlACE',
+    help: 'Replace all matches with REPLACE.'
+  },
+  {
+    names: ['help', 'h'],
+    type: 'bool',
+    help: 'Print this help and exit.'
+  }
+];
+
+
+var parser = dashdash.createParser({options: options});
+
+try {
+  var opts = parser.parse(process.argv);
+} catch (error) {
+  console.error('search: error: %s', error.message);
+  process.exit(1);
+}
+
+// Use `parser.help()` for formatted options help.
+if (opts.help) {
+  var help = parser.help({includeEnv: true}).trimRight();
+  console.log('usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]\n'
+              + 'options:\n'
+              + help);
+  process.exit(0);
+}
+
+
+// Result Counter
+var resultsCount = 0;
+
+// Search pattern
+var searchPattern = opts._args[0];
+
+// Max results
+var maxResults = opts.max_result_count;
+
+// File patterns
+var patterns = opts._args.slice(1);
+
+// Create arguments for ack
+var ackArgs = ['-H'];
+
+if (opts.ignore_case) ackArgs.push('-i');
+if (opts.literal) ackArgs.push('-Q');
+if (opts.color) ackArgs.push('--color')
+
+
+// Execute the search in series on all patterns.
+async.mapSeries(patterns, search, function(err) {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+  console.log('Found ' + resultsCount  + ' matches.');
 });
 
 
@@ -26,17 +101,22 @@ function search(location, cb) {
   glob(location, function (error, files) {
     if (error) return cb(error);
 
-    var child = spawn('ack', defaultArgs.concat(files));
+    // Spawn the ack process
+    var child = spawn('ack', ackArgs.concat(searchPattern).concat(files));
 
     child.stdout.pipe(split())
       .on('data', function(line) {
         if (line.trim().length > 0) {
+          if (maxResults && resultsCount === maxResults) {
+            return child.kill('SIGHUP');
+          }
           console.log(line);
-          counter++;
+          resultsCount++;
         }
       })
       .on('end', function() {
         cb();
       });
+    child.stderr.pipe(process.stderr);
   });
 }
