@@ -34,5 +34,6 @@ options:
     --max-result-count=NUM  Stop after NUM results.
     --replace=REPlACE       Replace all matches with REPLACE.
     -h, --help              Print this help and exit.
+    -C NUM, --context=NUM   Print NUM lines of output context.
 ```
 

@@ -37,6 +37,12 @@ var options = [
     names: ['help', 'h'],
     type: 'bool',
     help: 'Print this help and exit.'
+  },
+  {
+    names: ['context', 'C'],
+    type: 'number',
+    helpArg: 'NUM',
+    help: '  Print NUM lines of output context.'
   }
 ];
 
@@ -75,14 +81,20 @@ var maxResults = opts.max_result_count;
 // File patterns
 var patterns = opts._args.slice(1);
 
+var contextSize = opts.context || 2;
+
 // Match the color code for background orange.
 var matchRegexp = new RegExp(/[\u001b]\[30;43m/);
 
 // Create arguments for ack
-var ackArgs = ['-H', '--flush', '--heading', '-C', '2', '--color'];
+var ackArgs = ['-H', '--flush', '--heading', '--color'];
 
 if (opts.ignore_case) ackArgs.push('-i');
 if (opts.literal) ackArgs.push('-Q');
+if (opts.context) {
+  ackArgs.push('-C');
+  ackArgs.push(contextSize);
+}
 
 
 // Execute the search in series on all patterns.
@@ -121,7 +133,8 @@ function search(location, cb) {
 
         if (stopIn === 0) {
           stopped = true;
-          return child.kill('SIGHUP');
+          child.kill('SIGHUP');
+          cb('Stopped because of max-result-limit at ' + resultsCount + '.');
         }
 
         // Output
@@ -132,7 +145,7 @@ function search(location, cb) {
 
         // If we are over the maximum stop the process and exit.
         if (stopIn === -1 && maxResults && resultsCount >= maxResults) {
-          stopIn = 2;
+          stopIn = contextSize;
         }
       })
       .on('end', function() {
