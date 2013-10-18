@@ -1,12 +1,9 @@
-# Search
+# Search and Replace
 
-
-Simple wrapper around the silver searcher.
+Simple search and replace through commandline tools (`ack` and `sed`).
 
 
 ## Installation
-
-Install the silver searcher as instructed [here].
 
 ```bash
 $ npm install -g git://github.com/Dignifiedquire/search.git
@@ -15,27 +12,27 @@ $ npm install -g git://github.com/Dignifiedquire/search.git
 ## Usage
 
 Search for all `console` statements in all JavaScript files in the folders `src/core` and
-`src/ext`.
+`src/ext` and stop the search after `100` items.
 
 ```bash
-$ search "-i console" "src/core/**/*.js" "src/ext/**/*.js"
+$ search --max-result-count 100 --literal console "src/core/**/*.js" "src/ext/**/*.js"
 ```
-Sample Output
 
+Replace all these statements with `hello`:
 ```bash
-src/core/storage.js
-100-            return JSON.parse(text);
-101-        } catch (e) {
-102:            console.log('Objectify Error', e);
-103-        }
-104-    };
---
-117-            return JSON.stringify(obj);
-118-        } catch (e) {
-119:            console.log('Stringify Erorr', e);
-120-        }
-121-    };
+$ search --max-result-count 100 --literal --replace hello console "src/core/**/*.js" "src/ext/**/*.js"
 ```
 
 
-[here]: https://github.com/ggreer/the_silver_searcher
+## Options
+
+```bash
+search --help
+Usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]
+Options:
+  -i, --ignore-case             Ignore case distinctions in PATTERN
+  -Q, --literal                 Quote all metacharacters; PATTERN is literal
+  --max-result-count [NUM]      Stop after NUM results
+  --replace [REPLACE]           Replace all matches with REPLACE
+```
+

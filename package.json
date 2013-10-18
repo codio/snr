@@ -13,5 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "glob": "~3.2.6",
+    "split": "~0.2.10",
+    "async": "~0.2.9"
   }
 }
