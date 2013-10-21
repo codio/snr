@@ -77,6 +77,7 @@ var options = {
   maxResults: opts.max_result_count,
   ignoreCase: opts.ignore_case,
   literal: opts.literal,
+  wordRegexp: opts.word_regexp,
   context: opts.context || 2,
   cmd: cmd
 };

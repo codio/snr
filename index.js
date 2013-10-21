@@ -20,7 +20,7 @@ var makeArgs = function (opts, defaults) {
 
   if (opts.ignoreCase) result.push('-i');
   if (opts.literal) result.push('-Q');
-  if (opts.word_regexp) result.push('-w');
+  if (opts.wordRegexp) result.push('-w');
   if (opts.context && !_.contains(defaults, '-l')) {
     result.push('-C');
     result.push(opts.context);
@@ -140,6 +140,8 @@ var replace = function (files, pattern, opts) {
   opts._readable = new Readable();
   opts._readable._read = function (size) {};
 
+  files = _.isArray(files) ? files : [files];
+
   opts._args = makeArgs(opts, ['-l']);
   var perlArgs = ['g'];
   var perlPattern = pattern;
@@ -147,11 +149,12 @@ var replace = function (files, pattern, opts) {
   // Ignore case option
   if (_.contains(opts._args, '-i')) perlArgs.push('i');
 
+  // Literal option
+  if (_.contains(opts._args, '-Q')) perlPattern = '\\Q' + perlPattern + '\\E';
+
   // Whole word option
   if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
 
-  // Literal option
-  if (_.contains(opts._args, '-Q')) perlPattern = '\\Q' + perlPattern + '\\E';
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
@@ -177,10 +180,12 @@ var replace = function (files, pattern, opts) {
 
         // Empty result is converted to NaN
         count = _.isNaN(count) ? 0 : count;
+        opts._readable.push(cmd);
 
         cb(null, count);
       });
     });
+
   }, function (err, results) {
     if (err) {
       console.error(err);
@@ -190,7 +195,6 @@ var replace = function (files, pattern, opts) {
     var total = results.reduce(function (a, b) {
       return a + b;
     });
-
     opts._readable.push('Replaced ' + total + ' occurrence(s).\n');
     opts._readable.push(null);
   });
