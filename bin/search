@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-var search = require('../index');
+var search = require('../index').search;
+var replace = require('../index').replace;
 
 var sh = require('execSync');
 var dashdash = require('dashdash');
@@ -72,12 +73,18 @@ if (opts.help) {
 // ack or ack-grep
 var cmd = sh.run('hash ack-grep 2>/dev/null') === 1 ? 'ack' : 'ack-grep';
 
-
-search(opts._args.slice(1), opts._args[0], {
+var options = {
   maxResults: opts.max_result_count,
   ignoreCase: opts.ignore_case,
   literal: opts.literal,
   context: opts.context || 2,
-  cmd: cmd,
-  error: console.error
-}).pipe(process.stdout);
+  cmd: cmd
+};
+
+
+if (opts.replace) {
+  options.replace = opts.replace;
+  return replace(opts._args.slice(1), opts._args[0], options).pipe(process.stdout);
+}
+
+search(opts._args.slice(1), opts._args[0], options).pipe(process.stdout);

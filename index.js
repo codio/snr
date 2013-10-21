@@ -1,17 +1,21 @@
 var glob = require('glob');
 var Readable = require('stream').Readable;
 var spawn = require('child_process').spawn;
+var exec = require('child_process').exec;
 var split = require('split');
 var async = require('async');
 
-
-
+// Search files
+//
+// files   - File patterns to search through.
+// pattern - String pattern to search for.
+// opts    - Object with search options.
+//
+// Returns a Readable Stream.
 var search = function (files, pattern, opts) {
   // Result Stream
   opts._readable = new Readable();
-  opts._readable._read = function (size) {
-
-  };
+  opts._readable._read = function (size) {};
 
   // Result Counter
   opts._resultsCount = 0;
@@ -32,7 +36,7 @@ var search = function (files, pattern, opts) {
     find(pattern, file, opts, cb);
   }, function (err) {
     if (err) {
-      opts.error(err);
+      console.error(err);
       process.exit(1);
     }
     opts._readable.push('Found ' + opts._resultsCount  + ' matches.');
@@ -45,7 +49,10 @@ var search = function (files, pattern, opts) {
 
 // Execute the search cmd on a list of files.
 //
-// pattern - Search pattern
+// pattern  - Search pattern.
+// location - Glob pattern to search through.
+// opts     - Search options.
+// cb       - Callback function.
 //
 var find = function (pattern, location, opts, cb) {
   // Match the color code for background orange.
@@ -54,11 +61,11 @@ var find = function (pattern, location, opts, cb) {
   // Copy args
   var args = [].concat(opts._args);
 
-  // Execute glbos
+  // Execute globs
   glob(location, function (error, files) {
     if (error) return cb(error);
 
-    if (files.length === 0) return opts.error('No files found');
+    if (files.length === 0) return console.error('No files found');
     // Spawn the ack process
     var child = spawn(opts.cmd, args.concat(pattern).concat(files));
 
@@ -104,5 +111,52 @@ var find = function (pattern, location, opts, cb) {
   });
 }
 
+// Replace in files
+//
+// files   - File patterns to search through.
+// pattern - String pattern to search for.
+// opts    - Object with search options.
+//
+// Returns a Readable Stream.
+var replace = function (files, pattern, opts) {
 
-module.exports = search;
+  opts._readable = new Readable();
+  opts._readable._read = function (size) {};
+
+  // Execute the search in series on all patterns.
+  async.mapSeries(files, function (locations, cb) {
+    // Execute globs
+    glob(locations, function (error, location) {
+      if (error) return cb(error);
+      if (files.length === 0) return console.error('No files found');
+
+      var cmd = [
+        opts.cmd, '-l', pattern, location,
+        '|xargs', 'perl', '-pi', '-e', '"s/' + pattern + '/' + opts.replace + '/g"'
+      ].join(' ');
+
+      // Exec the replace process
+      exec(cmd, function (error, stdout, stderr) {
+
+        if (error) return cb(error);
+
+        opts._readable.push(stdout);
+        cb();
+      });
+    });
+  }, function (err) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    opts._readable.push('Finished\n');
+    opts._readable.push(null);
+  });
+
+
+  return opts._readable;
+};
+
+
+exports.search = search;
+exports.replace = replace;
