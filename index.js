@@ -149,7 +149,8 @@ var replace = function (files, pattern, opts) {
 
       var cmd = [opts.cmd].concat(opts._args).concat([pattern]).concat(location).concat([
         '|xargs', 'perl', '-pi', '-e',
-        '\'$count += s/' + pattern + '/' + opts.replace +'/g;',
+        '\'$count = 0;',
+        '$count += s/' + pattern + '/' + opts.replace +'/g;',
         'END{print "Replaced $count occurence(s).\n"}\''
       ]).join(' ');
 
@@ -158,7 +159,11 @@ var replace = function (files, pattern, opts) {
 
         if (error) return cb(error);
 
-        opts._readable.push(stdout);
+        if (stdout.trim().replace('/\\n/g', '') === '') {
+          opts._readable.push('Replaced 0 occurence(s).\n') ;
+        } else {
+          opts._readable.push(stdout);
+        }
         cb();
       });
     });
