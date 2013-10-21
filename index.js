@@ -130,9 +130,12 @@ var replace = function (files, pattern, opts) {
       if (error) return cb(error);
       if (files.length === 0) return console.error('No files found');
 
+
       var cmd = [
         opts.cmd, '-l', pattern, location,
-        '|xargs', 'perl', '-pi', '-e', '"s/' + pattern + '/' + opts.replace + '/g"'
+        '|xargs', 'perl', '-pi', '-e',
+        '\'$count += s/' + pattern + '/' + opts.replace +'/g;',
+        'END{print "Replaced $count occurence(s).\n"}\''
       ].join(' ');
 
       // Exec the replace process
@@ -149,7 +152,7 @@ var replace = function (files, pattern, opts) {
       console.error(err);
       process.exit(1);
     }
-    opts._readable.push('Finished\n');
+    //opts._readable.push('Finished\n');
     opts._readable.push(null);
   });
 
