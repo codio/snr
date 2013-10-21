@@ -139,6 +139,17 @@ var replace = function (files, pattern, opts) {
   opts._readable._read = function (size) {};
 
   opts._args = makeArgs(opts, ['-l']);
+  var perlArgs = ['g'];
+  var perlPattern = pattern;
+
+  // Ignore case option
+  if (_.contains(opts._args, '-i')) perlArgs.push('i');
+
+  // Whole word option
+  if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
+
+  // Literal option
+  if (_.contains(opts._args, '-Q')) perlPattern = '\\Q' + perlPattern + '\\E';
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
@@ -147,10 +158,9 @@ var replace = function (files, pattern, opts) {
       if (error) return cb(error);
       if (files.length === 0) return console.error('No files found');
 
-      var cmd = [opts.cmd].concat(opts._args).concat([pattern]).concat(location).concat([
+      var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', 'perl', '-pi', '-e',
-        '\'$count = 0;',
-        '$count += s/' + pattern + '/' + opts.replace +'/g;',
+        '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
         'END{print "Replaced $count occurence(s).\n"}\''
       ]).join(' ');
 
@@ -172,7 +182,7 @@ var replace = function (files, pattern, opts) {
       console.error(err);
       process.exit(1);
     }
-    //opts._readable.push('Finished\n');
+
     opts._readable.push(null);
   });
 
