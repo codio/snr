@@ -45,6 +45,12 @@ var options = [
     names: ['word-regexp', 'w'],
     type: 'bool',
     help: 'Force PATTERN to match only whole words.'
+  },
+  {
+    names: ['sandbox'],
+    type: 'string',
+    helpArg: 'SANDBOX',
+    help: 'Use SANDBOX to secure all executed shell commands.'
   }
 ];
 
@@ -79,7 +85,8 @@ var options = {
   literal: opts.literal,
   wordRegexp: opts.word_regexp,
   context: opts.context || 2,
-  cmd: cmd
+  cmd: cmd,
+  sandbox: opts.sandbox
 };
 
 

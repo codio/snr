@@ -46,6 +46,11 @@ var search = function (files, pattern, opts) {
 
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
+  // Sandbox command
+  if (opts.sandbox) {
+    opts.cmd = opts.sandbox + ' ' + opts.cmd;
+  }
+
   files = _.isArray(files) ? files : [files];
 
   // Execute the search in series on all patterns.
@@ -143,6 +148,8 @@ var replace = function (files, pattern, opts) {
   files = _.isArray(files) ? files : [files];
 
   opts._args = makeArgs(opts, ['-l']);
+
+  var perlCmd = 'perl';
   var perlArgs = ['g'];
   var perlPattern = pattern;
 
@@ -155,6 +162,11 @@ var replace = function (files, pattern, opts) {
   // Whole word option
   if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
 
+  // Sandbox command
+  if (opts.sandbox) {
+    opts.cmd = opts.sandbox + ' ' + opts.cmd;
+    perlCmd = opts.sandbox + ' ' + perlCmd;
+  }
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
@@ -164,7 +176,7 @@ var replace = function (files, pattern, opts) {
       if (files.length === 0) return console.error('No files found');
 
       var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
-        '|xargs', 'perl', '-pi', '-e',
+        '|xargs', perlCmd, '-pi', '-e',
         '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
         '$count = $count || 0;',
         'END{print "$count"}\''
