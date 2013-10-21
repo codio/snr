@@ -161,6 +161,7 @@ var replace = function (files, pattern, opts) {
       var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', 'perl', '-pi', '-e',
         '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
+        '$count = $count || 0;',
         'END{print "Replaced $count occurence(s).\n"}\''
       ]).join(' ');
 
@@ -189,8 +190,6 @@ var replace = function (files, pattern, opts) {
 
   return opts._readable;
 };
-
-
 
 
 exports.search = search;
