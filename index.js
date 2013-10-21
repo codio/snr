@@ -203,10 +203,10 @@ var replace = function (files, pattern, opts) {
       console.error(err);
       process.exit(1);
     }
-
+    results = results || [];
     var total = results.reduce(function (a, b) {
       return a + b;
-    });
+    }, 0);
     opts._readable.push('Replaced ' + total + ' occurrence(s).\n');
     opts._readable.push(null);
   });
