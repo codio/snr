@@ -1,0 +1,83 @@
+#!/usr/bin/env node
+
+var search = require('../index');
+
+var sh = require('execSync');
+var dashdash = require('dashdash');
+
+// Argument Handling
+var options = [
+  {
+    names: ['ignore-case', 'i'],
+    type: 'bool',
+    help: 'Ignore case distinctions in PATTERN.'
+  },
+  {
+    names: ['literal', 'Q'],
+    type: 'bool',
+    help: 'Quote all metacharacters; PATTERN is literal.'
+  },
+  {
+    name: 'max-result-count',
+    type: 'number',
+    helpArg: 'NUM',
+    help: 'Stop after NUM results.'
+  },
+  {
+    name: 'replace',
+    type: 'string',
+    helpArg: 'REPlACE',
+    help: 'Replace all matches with REPLACE.'
+  },
+  {
+    names: ['help', 'h'],
+    type: 'bool',
+    help: 'Print this help and exit.'
+  },
+  {
+    names: ['context', 'C'],
+    type: 'number',
+    helpArg: 'NUM',
+    help: 'Print NUM lines of output context.'
+  },
+  {
+    names: ['word-regexp', 'w'],
+    type: 'bool',
+    help: 'Force PATTERN to match only whole words.'
+  }
+];
+
+
+// Create options parser
+var parser = dashdash.createParser({options: options});
+
+
+// Process options
+try {
+  var opts = parser.parse(process.argv);
+} catch (error) {
+  console.error('search: error: %s', error.message);
+  process.exit(1);
+}
+
+// Use `parser.help()` for formatted options help.
+if (opts.help) {
+  var help = parser.help({includeEnv: true}).trimRight();
+  console.log('usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]\n'
+              + 'options:\n'
+              + help);
+  process.exit(0);
+}
+
+// ack or ack-grep
+var cmd = sh.run('hash ack-grep 2>/dev/null') === 1 ? 'ack' : 'ack-grep';
+
+
+search(opts._args.slice(1), opts._args[0], {
+  maxResults: opts.max_result_count,
+  ignoreCase: opts.ignore_case,
+  literal: opts.literal,
+  context: opts.context || 2,
+  cmd: cmd,
+  error: console.error
+}).pipe(process.stdout);

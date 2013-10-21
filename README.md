@@ -35,5 +35,6 @@ options:
     --replace=REPlACE       Replace all matches with REPLACE.
     -h, --help              Print this help and exit.
     -C NUM, --context=NUM   Print NUM lines of output context.
+    -w, --word-regexp       Force PATTERN to match only whole words.
 ```
 

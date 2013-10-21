@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "search": "index.js"
+    "search": "bin/search"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
