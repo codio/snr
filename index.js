@@ -46,6 +46,8 @@ var search = function (files, pattern, opts) {
 
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
+  files = _.isArray(files) ? files : [files];
+
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
     find(pattern, file, opts, cb);
