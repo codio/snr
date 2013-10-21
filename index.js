@@ -153,7 +153,6 @@ var replace = function (files, pattern, opts) {
         'END{print "Replaced $count occurence(s).\n"}\''
       ]).join(' ');
 
-      console.log('Exec:', cmd);
       // Exec the replace process
       exec(cmd, function (error, stdout, stderr) {
 
