@@ -164,7 +164,7 @@ var replace = function (files, pattern, opts) {
         '|xargs', 'perl', '-pi', '-e',
         '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
         '$count = $count || 0;',
-        'END{print "Replaced $count occurence(s).\n"}\''
+        'END{print "$count"}\''
       ]).join(' ');
 
       // Exec the replace process
@@ -172,20 +172,26 @@ var replace = function (files, pattern, opts) {
 
         if (error) return cb(error);
 
-        if (stdout.trim().replace('/\\n/g', '') === '') {
-          opts._readable.push('Replaced 0 occurence(s).\n') ;
-        } else {
-          opts._readable.push(stdout);
-        }
-        cb();
+        stdout = stdout.trim().replace(/\\n/g, '');
+        var count = parseInt(stdout, 10);
+
+        // Empty result is converted to NaN
+        count = _.isNaN(count) ? 0 : count;
+
+        cb(null, count);
       });
     });
-  }, function (err) {
+  }, function (err, results) {
     if (err) {
       console.error(err);
       process.exit(1);
     }
 
+    var total = results.reduce(function (a, b) {
+      return a + b;
+    });
+
+    opts._readable.push('Replaced ' + total + ' occurrence(s).\n');
     opts._readable.push(null);
   });
 
