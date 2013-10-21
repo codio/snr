@@ -4,6 +4,30 @@ var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var split = require('split');
 var async = require('async');
+var _ = require('lodash');
+
+
+
+// Generate the arguments array for ack
+//
+// opts     - Options object.
+// defaults - Default values that are added additionally.
+//
+// Returns an array of arguments for ack.
+var makeArgs = function (opts, defaults) {
+  // Create arguments for ack
+  var result = [].concat(defaults);
+
+  if (opts.ignoreCase) result.push('-i');
+  if (opts.literal) result.push('-Q');
+  if (opts.word_regexp) result.push('-w');
+  if (opts.context && !_.contains(defaults, '-l')) {
+    result.push('-C');
+    result.push(opts.context);
+  }
+  return result;
+};
+
 
 // Search files
 //
@@ -20,16 +44,7 @@ var search = function (files, pattern, opts) {
   // Result Counter
   opts._resultsCount = 0;
 
-  // Create arguments for ack
-  opts._args = ['-H', '--flush', '--heading', '--color'];
-
-  if (opts.ignoreCase) opts._args.push('-i');
-  if (opts.literal) opts._args.push('-Q');
-  if (opts.word_regexp) opts._args.push('-w');
-  if (opts.context) {
-    opts._args.push('-C');
-    opts._args.push(opts.context);
-  }
+  opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
@@ -123,6 +138,8 @@ var replace = function (files, pattern, opts) {
   opts._readable = new Readable();
   opts._readable._read = function (size) {};
 
+  opts._args = makeArgs(opts, ['-l']);
+
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
     // Execute globs
@@ -130,14 +147,13 @@ var replace = function (files, pattern, opts) {
       if (error) return cb(error);
       if (files.length === 0) return console.error('No files found');
 
-
-      var cmd = [
-        opts.cmd, '-l', pattern, location,
+      var cmd = [opts.cmd].concat(opts._args).concat([pattern]).concat(location).concat([
         '|xargs', 'perl', '-pi', '-e',
         '\'$count += s/' + pattern + '/' + opts.replace +'/g;',
         'END{print "Replaced $count occurence(s).\n"}\''
-      ].join(' ');
+      ]).join(' ');
 
+      console.log('Exec:', cmd);
       // Exec the replace process
       exec(cmd, function (error, stdout, stderr) {
 
@@ -159,6 +175,8 @@ var replace = function (files, pattern, opts) {
 
   return opts._readable;
 };
+
+
 
 
 exports.search = search;
