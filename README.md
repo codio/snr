@@ -1,4 +1,4 @@
-# Search and Replace
+# Search and Replace [![Build Status](https://travis-ci.org/Dignifiedquire/search.png)](https://travis-ci.org/Dignifiedquire/search)
 
 Simple search and replace through commandline tools (`ack` and `sed`).
 
