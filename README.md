@@ -6,7 +6,7 @@ Simple search and replace through commandline tools (`ack` and `sed`).
 ## Installation
 
 ```bash
-$ npm install -g git://github.com/Dignifiedquire/search.git
+$ npm install -g Dignifiedquire/search
 ```
 
 ## Usage

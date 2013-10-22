@@ -53,7 +53,7 @@ var search = function (files, pattern, opts) {
     find(pattern, file, opts, cb);
   }, function (err) {
     if (err) {
-      if (err.indexOf('Stopped because of max-result-limit') === 0) {
+      if (_.isString(err) && err.indexOf('Stopped because of max-result-limit') === 0) {
         opts._readable.push(err);
         return opts._readable.push(null);
       }
