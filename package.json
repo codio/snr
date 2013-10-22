@@ -7,7 +7,7 @@
     "search": "bin/search"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/*.js"
+    "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/setup.js test/*.spec.js"
   },
   "author": "Friedel Ziegelmayer",
   "license": "MIT",
@@ -23,7 +23,6 @@
     "chai": "~1.8.1",
     "sandboxed-module": "~0.3.0",
     "sinon": "~1.7.3",
-    "stringstream": "0.0.4",
     "better-stack-traces": "~1.0.0",
     "fs-extra": "~0.8.0",
     "mocha": "~1.13.0"
