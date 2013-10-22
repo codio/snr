@@ -36,6 +36,5 @@ options:
     -h, --help              Print this help and exit.
     -C NUM, --context=NUM   Print NUM lines of output context.
     -w, --word-regexp       Force PATTERN to match only whole words.
-    --sandbox=SANDBOX       Use SANDBOX to secure all executed shell commands.
 ```
 

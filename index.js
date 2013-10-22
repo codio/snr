@@ -46,11 +46,6 @@ var search = function (files, pattern, opts) {
 
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
-  // Sandbox command
-  if (opts.sandbox) {
-    opts.cmd = opts.sandbox + ' ' + opts.cmd;
-  }
-
   files = _.isArray(files) ? files : [files];
 
   // Execute the search in series on all patterns.
@@ -169,11 +164,6 @@ var replace = function (files, pattern, opts) {
   // Whole word option
   if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
 
-  // Sandbox command
-  if (opts.sandbox) {
-    opts.cmd = opts.sandbox + ' ' + opts.cmd;
-    perlCmd = opts.sandbox + ' ' + perlCmd;
-  }
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
