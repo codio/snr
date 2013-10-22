@@ -120,6 +120,27 @@ describe('search and replace', function () {
     });
 
     describe('options', function () {
+      describe('-l literal', function () {
+        it('should work', function (done) {
+          var opts = {
+            replace: 'codio',
+            literal: true,
+            wordRegexp: false,
+            ignoreCase: false,
+            cmd: ack
+          };
+          var out = replace(destPath, 'TEAM', opts);
+          out.on('data', function (data) {
+            expect(data.toString()).to.be.eql('Replaced 1 occurrence(s).\n');
+          });
+          out.on('end', function () {
+            var result = fs.readFileSync(destPath).toString();
+            var expected = fs.readFileSync(__dirname + '/fixtures/literalExpected.txt').toString();
+            expect(result).to.be.eql(expected);
+            done();
+          });
+        });
+      });
       describe('-w whole word', function () {
         it('should work with literal option', function (done) {
           var opts = {
