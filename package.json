@@ -7,7 +7,7 @@
     "search": "bin/search"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/*.js"
   },
   "author": "Friedel Ziegelmayer",
   "license": "MIT",
@@ -21,12 +21,11 @@
   },
   "devDependencies": {
     "chai": "~1.8.1",
-    "grunt-simple-mocha": "~0.4.0",
-    "grunt": "~0.4.1",
     "sandboxed-module": "~0.3.0",
     "sinon": "~1.7.3",
     "stringstream": "0.0.4",
     "better-stack-traces": "~1.0.0",
-    "fs-extra": "~0.8.0"
+    "fs-extra": "~0.8.0",
+    "mocha": "~1.13.0"
   }
 }

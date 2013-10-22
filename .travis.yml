@@ -3,8 +3,7 @@ node_js:
   - 0.10
 
 before_script:
-  - npm install -g grunt-cli
   - sudo apt-get update -qq && sudo apt-get install ack-grep -qq
 
 script:
-  - grunt
+  - npm test
