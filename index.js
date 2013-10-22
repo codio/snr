@@ -58,10 +58,16 @@ var search = function (files, pattern, opts) {
     find(pattern, file, opts, cb);
   }, function (err) {
     if (err) {
+      if (err.indexOf('Stopped because of max-result-limit') === 0) {
+        opts._readable.push(err);
+        return opts._readable.push(null);
+      }
+
       console.error(err);
+      opts._readable.push(null);
       process.exit(1);
     }
-    opts._readable.push('Found ' + opts._resultsCount  + ' matches.');
+    opts._readable.push('Found ' + opts._resultsCount  + ' matches.\n');
     opts._readable.push(null);
   });
 
@@ -87,7 +93,7 @@ var find = function (pattern, location, opts, cb) {
   glob(location, function (error, files) {
     if (error) return cb(error);
 
-    if (files.length === 0) return console.error('No files found');
+    if (files.length === 0) return console.error('No files found.');
     // Spawn the ack process
     var child = spawn(opts.cmd, args.concat(pattern).concat(files));
 
@@ -106,7 +112,8 @@ var find = function (pattern, location, opts, cb) {
         if (stopIn === 0) {
           stopped = true;
           child.kill('SIGHUP');
-          cb('Stopped because of max-result-limit at ' + opts._resultsCount + '.');
+
+          return cb('Stopped because of max-result-limit at ' + opts._resultsCount + '.\n');
         }
 
 
@@ -173,7 +180,7 @@ var replace = function (files, pattern, opts) {
     // Execute globs
     glob(locations, function (error, location) {
       if (error) return cb(error);
-      if (files.length === 0) return console.error('No files found');
+      if (files.length === 0) return console.error('No files found.');
 
       var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', perlCmd, '-pi', '-e',
