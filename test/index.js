@@ -130,7 +130,9 @@ describe('search and replace', function () {
             cmd: ack
           };
           var out = replace(destPath, 'team', opts);
-          out.on('data', function () {});
+          out.on('data', function (data) {
+            expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
+          });
           out.on('end', function () {
             var result = fs.readFileSync(destPath).toString();
             var expected = fs.readFileSync(__dirname + '/fixtures/simpleExpected.txt').toString();
