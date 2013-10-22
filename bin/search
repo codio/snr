@@ -45,6 +45,12 @@ var options = [
     names: ['word-regexp', 'w'],
     type: 'bool',
     help: 'Force PATTERN to match only whole words.'
+  },
+  {
+    names: ['color-lineno'],
+    type: 'string',
+    helpArg: 'COLOR',
+    help: 'Set the color for filenames, matches, and line numbers.'
   }
 ];
 
@@ -78,6 +84,9 @@ var options = {
   ignoreCase: opts.ignore_case,
   literal: opts.literal,
   wordRegexp: opts.word_regexp,
+  colors: {
+    lineno: opts.color_lineno
+  },
   context: opts.context || 2,
   cmd: cmd
 };

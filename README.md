@@ -36,5 +36,7 @@ options:
     -h, --help              Print this help and exit.
     -C NUM, --context=NUM   Print NUM lines of output context.
     -w, --word-regexp       Force PATTERN to match only whole words.
+    --color-lineno=COLOR    Set the color for filenames, matches, and line
+                            numbers.
 ```
 

@@ -25,6 +25,11 @@ var makeArgs = function (opts, defaults) {
     result.push('-C');
     result.push(opts.context);
   }
+  if (opts.colors && opts.colors.lineno) {
+    result.push('--color-lineno');
+    result.push(opts.colors.lineno);
+  }
+
   return result;
 };
 
