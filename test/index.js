@@ -62,7 +62,7 @@ describe('search and replace', function () {
       glob.yields(null, 'index.js');
 
       toString(search('index.js', 'push', {}), function (err, result) {
-        expect(result).to.be.eql(simpleResult + 'Found 12 matches.');
+        expect(result).to.be.eql(simpleResult + 'Found 12 matches.\n');
         done();
       });
     });
