@@ -180,7 +180,6 @@ var replace = function (files, pattern, opts) {
       var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', perlCmd, '-pi', '-e',
         '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
-        '$count = $count || 0;',
         'END{print "$count"}\''
       ]).join(' ');
 
@@ -194,7 +193,6 @@ var replace = function (files, pattern, opts) {
 
         // Empty result is converted to NaN
         count = _.isNaN(count) ? 0 : count;
-        opts._readable.push(cmd);
 
         cb(null, count);
       });
