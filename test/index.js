@@ -41,29 +41,59 @@ describe('search and replace', function () {
     var spawn = sinon.stub(childProcess, 'spawn');
     var glob = sinon.stub();
 
-    beforeEach(function () {
-      search = SandboxedModule.require('../index', {
-        requires: {
-          child_process: childProcess,
-          glob: glob
-        }
-      }).search;
-    });
+    describe('basics', function () {
 
-    it('should exist', function () {
-      expect(search).to.be.a('function');
-    });
-    it('should return matches', function (done) {
-      spawn.returns({
-        stdout: fs.createReadStream(__dirname + '/fixtures/simple.txt'),
-        stderr: emptyStream()
+      beforeEach(function () {
+        search = SandboxedModule.require('../index', {
+          requires: {
+            child_process: childProcess,
+            glob: glob
+          }
+        }).search;
       });
 
-      glob.yields(null, 'index.js');
+      it('should exist', function () {
+        expect(search).to.be.a('function');
+      });
+      it('should return matches', function (done) {
+        spawn.returns({
+          stdout: fs.createReadStream(__dirname + '/fixtures/simple.txt'),
+          stderr: emptyStream()
+        });
 
-      toString(search('index.js', 'push', {}), function (err, result) {
-        expect(result).to.be.eql(simpleResult + 'Found 12 matches.\n');
-        done();
+        glob.yields(null, 'index.js');
+
+        toString(search('index.js', 'push', {}), function (err, result) {
+          expect(result).to.be.eql(simpleResult + 'Found 12 matches.\n');
+          done();
+        });
+      });
+    });
+
+    describe('options', function () {
+      search = require('../index').search;
+      var origPath = __dirname + '/fixtures/simpleOriginal.txt';
+
+
+      describe('-w whole word', function () {
+        it('should only find whole words', function (done) {
+          var opts = {
+            literal: true,
+            wordRegexp: true,
+            ignoreCase: true,
+            cmd: ack
+          };
+          var out = search(origPath, 'team', opts);
+          var result = '';
+          out.on('data', function (data) {
+            result += data.toString();
+          });
+          out.on('end', function () {
+            var expected = fs.readFileSync(__dirname + '/fixtures/wordSearchExpected.txt').toString();
+            expect(result).to.be.eql(result);
+            done();
+          });
+        });
       });
     });
   });
