@@ -29,7 +29,7 @@ describe('search', function () {
       glob.yields(null, 'index.js');
 
       helpers.streamToString(search('index.js', 'push', {}), function (err, result) {
-        expect(result).to.be.eql(simpleResult + 'Found 12 matches.\n');
+        expect(result).to.be.eql(simpleResult + 'Found 12 matches in 1 file(s).\n');
         done();
       });
     });

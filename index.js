@@ -39,7 +39,7 @@ var search = function (files, pattern, opts) {
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
     find(pattern, file, opts, cb);
-  }, function (err) {
+  }, function (err, fileCount) {
     if (err) {
       if (_.isString(err) && err.indexOf('Stopped because of max-result-limit') === 0) {
         opts._readable.push(err);
@@ -50,7 +50,7 @@ var search = function (files, pattern, opts) {
       opts._readable.push(null);
       process.exit(1);
     }
-    opts._readable.push('Found ' + opts._resultsCount  + ' matches.\n');
+    opts._readable.push('Found ' + opts._resultsCount  + ' matches in ' + fileCount + ' file(s).\n');
     opts._readable.push(null);
   });
 
@@ -176,9 +176,13 @@ function makeArgs(opts, defaults) {
 function find(pattern, location, opts, cb) {
   // Match the color code for background orange.
   var matchRegexp = new RegExp(/[\u001b]\[30;43m/g);
+  var newFileRegexp = new RegExp(/^[\u001b]\[[0-9]+;[0-9]+m[^0-9]/);
 
   // Copy args
   var args = [].concat(opts._args);
+
+  // Counter for number of files with matches
+  var fileCount = 0;
 
   // Execute globs
   glob(location, function (error, files) {
@@ -212,6 +216,8 @@ function find(pattern, location, opts, cb) {
         var matchesCount = line.match(matchRegexp);
         opts._resultsCount += matchesCount ? matchesCount.length : 0;
 
+        if (line.match(newFileRegexp)) fileCount++;
+
         // Output
         opts._readable.push(line + '\n');
 
@@ -224,7 +230,7 @@ function find(pattern, location, opts, cb) {
         }
       })
       .on('end', function() {
-        cb();
+        cb(null, fileCount);
       });
 
     child.stderr.pipe(process.stderr);
