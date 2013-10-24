@@ -63,14 +63,14 @@ var parser = dashdash.createParser({options: options});
 try {
   var opts = parser.parse(process.argv);
 } catch (error) {
-  console.error('search: error: %s', error.message);
+  console.error('snr: error: %s', error.message);
   process.exit(1);
 }
 
 // Use `parser.help()` for formatted options help.
 if (opts.help) {
   var help = parser.help({includeEnv: true}).trimRight();
-  console.log('usage: search [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]\n'
+  console.log('usage: snr [OPTION]... PATTERN [FILES OR DIRECTORIES OR GLOBS]\n'
               + 'options:\n'
               + help);
   process.exit(0);

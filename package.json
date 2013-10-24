@@ -1,15 +1,15 @@
 {
-  "name": "search",
-  "version": "0.0.1",
-  "description": "",
+  "name": "snr",
+  "version": "0.1.0",
+  "description": "Simple search and replace tool.",
   "main": "index.js",
   "bin": {
-    "search": "bin/search"
+    "snr": "bin/snr"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/setup.js test/*.spec.js"
   },
-  "author": "Friedel Ziegelmayer",
+  "author": "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "glob": "~3.2.6",
