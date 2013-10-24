@@ -49,9 +49,19 @@ var search = function (files, pattern, opts) {
   // Result Counter
   opts._resultsCount = 0;
 
+  // Default options
+  opts = _.defaults(opts || {}, {
+    ignoreCase: false,
+    literal: false,
+    wordRegexp: false,
+    cmd: 'ack'
+  });
+
+
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
   files = _.isArray(files) ? files : [files];
+
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
@@ -153,6 +163,15 @@ var replace = function (files, pattern, opts) {
   opts._readable._read = function (size) {};
 
   files = _.isArray(files) ? files : [files];
+
+
+  // Default options
+  opts = _.defaults(opts || {}, {
+    ignoreCase: false,
+    literal: false,
+    wordRegexp: false,
+    cmd: 'ack'
+  });
 
   opts._args = makeArgs(opts, ['-l']);
 
