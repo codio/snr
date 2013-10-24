@@ -7,32 +7,6 @@ var async = require('async');
 var _ = require('lodash');
 
 
-// Generate the arguments array for ack
-//
-// opts     - Options object.
-// defaults - Default values that are added additionally.
-//
-// Returns an array of arguments for ack.
-var makeArgs = function (opts, defaults) {
-  // Create arguments for ack
-  var result = [].concat(defaults);
-
-  if (opts.ignoreCase) result.push('-i');
-  if (opts.literal) result.push('-Q');
-  if (opts.wordRegexp) result.push('-w');
-  if (opts.context && !_.contains(defaults, '-l')) {
-    result.push('-C');
-    result.push(opts.context);
-  }
-  if (opts.colors && opts.colors.lineno) {
-    result.push('--color-lineno');
-    result.push(opts.colors.lineno);
-  }
-
-  return result;
-};
-
-
 // Search files
 //
 // files   - File patterns to search through.
@@ -82,72 +56,6 @@ var search = function (files, pattern, opts) {
 
   return opts._readable;
 };
-
-
-// Execute the search cmd on a list of files.
-//
-// pattern  - Search pattern.
-// location - Glob pattern to search through.
-// opts     - Search options.
-// cb       - Callback function.
-//
-var find = function (pattern, location, opts, cb) {
-  // Match the color code for background orange.
-  var matchRegexp = new RegExp(/[\u001b]\[30;43m/g);
-
-  // Copy args
-  var args = [].concat(opts._args);
-
-  // Execute globs
-  glob(location, function (error, files) {
-    if (error) return cb(error);
-
-    if (files.length === 0) return console.error('No files found.');
-    // Spawn the ack process
-    var child = spawn(opts.cmd, args.concat(pattern).concat(files));
-
-    var stopIn = -1;
-    var stopped = false;
-
-    child.stdout.pipe(split())
-      .on('data', function(line) {
-        if (stopped) return;
-
-        line = line.trim();
-        if (line.length === 0) {
-          return;
-        }
-
-        if (stopIn === 0) {
-          stopped = true;
-          child.kill('SIGHUP');
-
-          return cb('Stopped because of max-result-limit at ' + opts._resultsCount + '.\n');
-        }
-
-
-        // Count all occurrences of the match in the line
-        var matchesCount = line.match(matchRegexp);
-        opts._resultsCount += matchesCount ? matchesCount.length : 0;
-
-        // Output
-        opts._readable.push(line + '\n');
-
-        // Decrement stopIn after output.
-        if (stopIn > 0) return stopIn--;
-
-        // If we are over the maximum stop the process and exit.
-        if (stopIn === -1 && opts.maxResults && opts._resultsCount >= opts.maxResults) {
-          stopIn = opts.context;
-        }
-      })
-      .on('end', function() {
-        cb();
-      });
-
-    child.stderr.pipe(process.stderr);
-  });
-}
 
 // Replace in files
 //
@@ -232,6 +140,96 @@ var replace = function (files, pattern, opts) {
 
   return opts._readable;
 };
+
+// Generate the arguments array for ack
+//
+// opts     - Options object.
+// defaults - Default values that are added additionally.
+//
+// Returns an array of arguments for ack.
+function makeArgs(opts, defaults) {
+  // Create arguments for ack
+  var result = [].concat(defaults);
+
+  if (opts.ignoreCase) result.push('-i');
+  if (opts.literal) result.push('-Q');
+  if (opts.wordRegexp) result.push('-w');
+  if (opts.context && !_.contains(defaults, '-l')) {
+    result.push('-C');
+    result.push(opts.context);
+  }
+  if (opts.colors && opts.colors.lineno) {
+    result.push('--color-lineno');
+    result.push(opts.colors.lineno);
+  }
+
+  return result;
+}
+
+// Execute the search cmd on a list of files.
+//
+// pattern  - Search pattern.
+// location - Glob pattern to search through.
+// opts     - Search options.
+// cb       - Callback function.
+//
+function find(pattern, location, opts, cb) {
+  // Match the color code for background orange.
+  var matchRegexp = new RegExp(/[\u001b]\[30;43m/g);
+
+  // Copy args
+  var args = [].concat(opts._args);
+
+  // Execute globs
+  glob(location, function (error, files) {
+    if (error) return cb(error);
+
+    if (files.length === 0) return console.error('No files found.');
+    // Spawn the ack process
+    var child = spawn(opts.cmd, args.concat(pattern).concat(files));
+
+    var stopIn = -1;
+    var stopped = false;
+
+    child.stdout.pipe(split())
+      .on('data', function(line) {
+        if (stopped) return;
+
+        line = line.trim();
+        if (line.length === 0) {
+          return;
+        }
+
+        if (stopIn === 0) {
+          stopped = true;
+          child.kill('SIGHUP');
+
+          return cb('Stopped because of max-result-limit at ' + opts._resultsCount + '.\n');
+        }
+
+
+        // Count all occurrences of the match in the line
+        var matchesCount = line.match(matchRegexp);
+        opts._resultsCount += matchesCount ? matchesCount.length : 0;
+
+        // Output
+        opts._readable.push(line + '\n');
+
+        // Decrement stopIn after output.
+        if (stopIn > 0) return stopIn--;
+
+        // If we are over the maximum stop the process and exit.
+        if (stopIn === -1 && opts.maxResults && opts._resultsCount >= opts.maxResults) {
+          stopIn = opts.context;
+        }
+      })
+      .on('end', function() {
+        cb();
+      });
+
+    child.stderr.pipe(process.stderr);
+  });
+}
 
 
 exports.search = search;
