@@ -6,6 +6,8 @@ var replace = require('../index').replace;
 var sh = require('execSync');
 var dashdash = require('dashdash');
 
+var version = require('../package.json').version;
+
 // Argument Handling
 var options = [
   {
@@ -34,6 +36,11 @@ var options = [
     names: ['help', 'h'],
     type: 'bool',
     help: 'Print this help and exit.'
+  },
+  {
+    names: ['version', 'v'],
+    type: 'bool',
+    help: 'Print the current version.'
   },
   {
     names: ['context', 'C'],
@@ -75,6 +82,12 @@ if (opts.help) {
               + help);
   process.exit(0);
 }
+
+if (opts.version) {
+  console.log('snr version: ' + version);
+  process.exit(0);
+}
+
 
 // ack or ack-grep
 var cmd = sh.run('hash ack-grep 2>/dev/null') === 1 ? 'ack' : 'ack-grep';

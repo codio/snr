@@ -59,6 +59,7 @@ options:
     --max-result-count=NUM  Stop after NUM results.
     --replace=REPlACE       Replace all matches with REPLACE.
     -h, --help              Print this help and exit.
+    -v, --version           Print the current version.
     -C NUM, --context=NUM   Print NUM lines of output context.
     -w, --word-regexp       Force PATTERN to match only whole words.
     --color-lineno=COLOR    Set the color for filenames, matches, and line

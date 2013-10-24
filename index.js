@@ -7,7 +7,6 @@ var async = require('async');
 var _ = require('lodash');
 
 
-
 // Generate the arguments array for ack
 //
 // opts     - Options object.
