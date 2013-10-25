@@ -71,6 +71,40 @@ options:
 ## Globs
 
 
+### Simple Examples
+
+Lets say you have the following project
+
+```bash
+|-- lib
+|  |-- index.js
+|  |-- hello_world.js
+|-- index.html
+|-- 404.html
+|-- app.js
+`-- gruntfile.coffee
+```
+
+then you can use globs to select files in this way:
+
+* All files ending in `.js`: `**/*.js`.
+  * `index.js`
+  * `hello_world.js`
+  * `app.js`
+* All files ending in `.html` in the root folder: `*.html`
+  * `index.html`
+  * `404.html`
+* All files in `lib`: `lib/*.*`
+  * `index.js`
+  * `hello_world.js`
+* All files ending in `.html` or `.coffee`: `**/*{.html,.coffee}`
+  * `index.html`
+  * `404.html`
+  * `gruntfile.coffee`
+* All files beginning with `index`: `**/index*`
+  * `index.js`
+  * `index.html`
+
 ### Basic Rules
 
 > From `man bash`
