@@ -1,6 +1,8 @@
 // Search Tests
 // ------------
 
+var _ = require('lodash');
+
 describe('search', function () {
   var spawn = sinon.stub(childProcess, 'spawn');
   var glob = sinon.stub();
@@ -33,6 +35,22 @@ describe('search', function () {
         done();
       });
     });
+    it('should count the number of matched files', function (done) {
+      spawn.returns({
+        stdout: fs.createReadStream(__dirname + '/fixtures/filecount.txt'),
+        stderr: helpers.emptyStream()
+      });
+
+      glob.yields(null, 'index.js');
+
+      helpers.streamToString(search('index.js', 'found', {}), function (err, result) {
+        var parts = _.compact(result.split('\n'));
+        var lastLine = parts[parts.length - 1];
+        expect(lastLine).to.be.eql('Found 4 matches in 4 file(s).');
+        done();
+      });
+    });
+
   });
 
   describe('options', function () {

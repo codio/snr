@@ -50,6 +50,13 @@ var search = function (files, pattern, opts) {
       opts._readable.push(null);
       process.exit(1);
     }
+
+    if (_.isArray(fileCount)) {
+      fileCount = _.reduce(fileCount, function (sum, part) {
+        return sum += part;
+      }, 0);
+    }
+
     opts._readable.push('Found ' + opts._resultsCount  + ' matches in ' + fileCount + ' file(s).\n');
     opts._readable.push(null);
   });
@@ -176,7 +183,7 @@ function makeArgs(opts, defaults) {
 function find(pattern, location, opts, cb) {
   // Match the color code for background orange.
   var matchRegexp = new RegExp(/[\u001b]\[30;43m/g);
-  var newFileRegexp = new RegExp(/^[\u001b]\[[0-9]+;[0-9]+m[^0-9]/);
+  var newFileRegexp = new RegExp(/^[\u001b]\[1;32m/);
 
   // Copy args
   var args = [].concat(opts._args);
@@ -216,7 +223,7 @@ function find(pattern, location, opts, cb) {
         var matchesCount = line.match(matchRegexp);
         opts._resultsCount += matchesCount ? matchesCount.length : 0;
 
-        if (line.match(newFileRegexp)) fileCount++;
+        if (line.match(newFileRegexp)) ++fileCount;
 
         // Output
         opts._readable.push(line + '\n');

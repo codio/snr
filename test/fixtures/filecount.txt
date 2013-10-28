@@ -1,0 +1,24 @@
+[1;32m404.html[0m
+[1;33m142[0m-    <body>
+[1;33m143[0m-        <div class="container">
+[1;33m144[0m:            <h1>Not [30;43mfound[0m <span>:(</span></h1>[0m[K
+[1;33m145[0m-            <p>Sorry, but the page you were trying to view does not exist.</p>
+[1;33m146[0m-            <p>It looks like this was the result of either:</p>
+[1;32mdoc/faq.md[0m
+[1;33m67[0m-### Do I need to upgrade my sites each time a new version of HTML5 Boilerplate is released?
+[1;33m68[0m-
+[1;33m69[0m:No. You don't normally replace the [30;43mfound[0mations of a house once it has been[0m[K
+[1;33m70[0m-built. There is nothing stopping you from trying to work in the latest changes
+[1;33m71[0m-but you'll have to assess the costs/benefits of doing so.
+[1;32mdoc/htaccess.md[0m
+[1;33m66[0m-   enabled.
+[1;33m67[0m-
+[1;33m68[0m:2. **MAMP**. Locate the `httpd.conf` file, which is typically [30;43mfound[0m in[0m[K
+[1;33m69[0m-   `/Applications/MAMP/conf/apache/httpd.conf`. Open the file in a text editor
+[1;33m70[0m-   and uncomment all of the required modules listed above. Once you have done so,
+[1;32mdoc/usage.md[0m
+[1;33m48[0m-
+[1;33m49[0m-This directory should contain all your project's CSS files. It includes some
+[1;33m50[0m:initial CSS to help get you started from a solid [30;43mfound[0mation. [About the[0m[K
+[1;33m51[0m-CSS](css.md).
+[1;33m52[0m-
