@@ -217,7 +217,7 @@ function find(pattern, location, opts, cb) {
           stopped = true;
           child.kill('SIGHUP');
 
-          return cb('Stopped because of max-result-limit at ' + opts._resultsCount + '.\n');
+          return cb('Stopped because of max-result-limit at ' + opts._resultsCount + ' match(es) in ' + fileCount + ' file(s).\n');
         }
 
 

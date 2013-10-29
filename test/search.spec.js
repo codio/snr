@@ -71,7 +71,7 @@ describe('search', function () {
 
         helpers.streamToString(search('test/fixtures/filecount.txt', 'found', opts), function (err, result) {
           var lastLine = _.last(_.compact(result.split('\n')));
-          expect(lastLine).to.be.eql('Stopped because of max-result-limit at 2.');
+          expect(lastLine).to.be.eql('Stopped because of max-result-limit at 2 match(es) in 1 file(s).');
           done();
         });
       });
