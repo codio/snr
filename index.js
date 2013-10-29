@@ -7,6 +7,22 @@ var async = require('async');
 var _ = require('lodash');
 
 
+
+// Deep defaults
+var defaults = _.partialRight(_.merge, _.defaults);
+
+// Default options
+var defaultOptions = {
+  ignoreCase: false,
+  literal: false,
+  wordRegexp: false,
+  context: 2,
+  cmd: 'ack',
+  color: {
+    lineno: 'yellow'
+  }
+};
+
 // Search files
 //
 // files   - File patterns to search through.
@@ -23,13 +39,7 @@ var search = function (files, pattern, opts) {
   opts._resultsCount = 0;
 
   // Default options
-  opts = _.defaults(opts || {}, {
-    ignoreCase: false,
-    literal: false,
-    wordRegexp: false,
-    context: 2,
-    cmd: 'ack'
-  });
+  opts = defaults(opts || {}, defaultOptions);
 
 
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
@@ -80,13 +90,7 @@ var replace = function (files, pattern, opts) {
 
 
   // Default options
-  opts = _.defaults(opts || {}, {
-    ignoreCase: false,
-    literal: false,
-    wordRegexp: false,
-    context: 2,
-    cmd: 'ack'
-  });
+  opts = _.defaults(opts || {}, defaultOptions);
 
   opts._args = makeArgs(opts, ['-l']);
 
