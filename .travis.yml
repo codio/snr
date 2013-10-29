@@ -3,7 +3,7 @@ node_js:
   - 0.10
 
 before_script:
-  - sudo apt-get update -qq && sudo apt-get install ack-grep -qq
+  - sudo apt-get update -qq && sudo apt-get install ack-grep -t precise -qq
 
 script:
   - npm test
