@@ -3,7 +3,9 @@ node_js:
   - 0.10
 
 before_script:
-  - sudo apt-get update -qq && sudo apt-get install ack-grep -t precise -qq
+  - mkdir ~/bin
+  - curl http://beyondgrep.com/ack-2.10-single-file > ~/bin/ack && chmod 0755 !#:3
+  - export PATH=~/bin:$PATH
 
 script:
   - npm test
