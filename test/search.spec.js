@@ -1,27 +1,33 @@
 // Search Tests
 // ------------
 
+/* global describe, beforeEach, afterEach, it, childProcess, SandboxedModule, fs, helpers, expect, ack */
+
 var _ = require('lodash');
 
 describe('search', function () {
-  var spawn = sinon.stub(childProcess, 'spawn');
-  var glob = sinon.stub();
-  var search;
+  var spawn, glob;
+  var search = require('../index').search;
 
   describe('basics', function () {
+    spawn = sinon.stub(childProcess, 'spawn');
+    var searchBoxed;
 
     beforeEach(function () {
-      search = SandboxedModule.require('../index', {
+      glob = sinon.stub();
+      searchBoxed = SandboxedModule.require('../index', {
         requires: {
-          child_process: childProcess,
+          child_process: {spawn: spawn},
           glob: glob
         }
       }).search;
     });
 
+
     it('should exist', function () {
-      expect(search).to.be.a('function');
+      expect(searchBoxed).to.be.a('function');
     });
+
     it('should return matches', function (done) {
       spawn.returns({
         stdout: fs.createReadStream(__dirname + '/fixtures/simple.txt'),
@@ -30,7 +36,7 @@ describe('search', function () {
 
       glob.yields(null, 'index.js');
 
-      helpers.streamToString(search('index.js', 'push', {}), function (err, result) {
+      helpers.streamToString(searchBoxed('index.js', 'push', {}), function (err, result) {
         expect(result).to.be.eql(simpleResult + 'Found 12 matches in 1 file(s).\n');
         done();
       });
@@ -43,20 +49,33 @@ describe('search', function () {
 
       glob.yields(null, 'index.js');
 
-      helpers.streamToString(search('index.js', 'found', {}), function (err, result) {
+      helpers.streamToString(searchBoxed('index.js', 'found', {}), function (err, result) {
         var parts = _.compact(result.split('\n'));
         var lastLine = parts[parts.length - 1];
         expect(lastLine).to.be.eql('Found 4 matches in 4 file(s).');
         done();
       });
     });
-
   });
 
   describe('options', function () {
+    var origPath = 'test/fixtures/simpleOriginal.txt';
     search = require('../index').search;
-    var origPath = __dirname + '/fixtures/simpleOriginal.txt';
 
+    describe('--max-result-count', function () {
+      it('should limit results', function (done) {
+        var opts = {
+          maxResults: 1,
+          cmd: ack
+        };
+
+        helpers.streamToString(search('test/fixtures/filecount.txt', 'found', opts), function (err, result) {
+          var lastLine = _.last(_.compact(result.split('\n')));
+          expect(lastLine).to.be.eql('Stopped because of max-result-limit at 2.');
+          done();
+        });
+      });
+    });
 
     describe('-w whole word', function () {
       it('should only find whole words', function (done) {
@@ -64,12 +83,13 @@ describe('search', function () {
           literal: true,
           wordRegexp: true,
           ignoreCase: true,
+          context: 2,
           cmd: ack
         };
 
         helpers.streamToString(search(origPath, 'team', opts), function (err, result) {
           var expected = fs.readFileSync(__dirname + '/fixtures/wordSearchExpected.txt').toString();
-          expect(result).to.be.eql(result);
+          expect(result).to.be.eql(expected);
           done();
         });
       });

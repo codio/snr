@@ -100,7 +100,7 @@ var options = {
   colors: {
     lineno: opts.color_lineno
   },
-  context: opts.context || 2,
+  context: opts.context,
   cmd: cmd
 };
 

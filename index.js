@@ -27,6 +27,7 @@ var search = function (files, pattern, opts) {
     ignoreCase: false,
     literal: false,
     wordRegexp: false,
+    context: 2,
     cmd: 'ack'
   });
 
@@ -34,7 +35,6 @@ var search = function (files, pattern, opts) {
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
   files = _.isArray(files) ? files : [files];
-
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
@@ -84,6 +84,7 @@ var replace = function (files, pattern, opts) {
     ignoreCase: false,
     literal: false,
     wordRegexp: false,
+    context: 2,
     cmd: 'ack'
   });
 
@@ -196,6 +197,7 @@ function find(pattern, location, opts, cb) {
     if (error) return cb(error);
 
     if (files.length === 0) return console.error('No files found.');
+
     // Spawn the ack process
     var child = spawn(opts.cmd, args.concat(pattern).concat(files));
 

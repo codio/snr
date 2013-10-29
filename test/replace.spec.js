@@ -1,6 +1,8 @@
 // Replace Tests
 // -------------
 
+/* global describe, beforeEach, afterEach, it, childProcess, SandboxedModule, fs, helpers, expect, ack */
+
 describe('replace', function () {
   var replace;
   var destPath = __dirname + '/fixtures/simpleReplace.txt';
