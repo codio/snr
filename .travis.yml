@@ -4,7 +4,7 @@ node_js:
 
 before_script:
   - mkdir ~/bin
-  - curl http://beyondgrep.com/ack-2.10-single-file > ~/bin/ack && chmod 0755 !#:3
+  - curl http://beyondgrep.com/ack-2.10-single-file > ~/bin/ack && chmod 0755 ~/bin/ack
   - export PATH=~/bin:$PATH
 
 script:
