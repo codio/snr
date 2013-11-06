@@ -30,8 +30,7 @@ describe('replace', function () {
           replace: 'codio',
           literal: true,
           wordRegexp: false,
-          ignoreCase: false,
-          cmd: ack
+          ignoreCase: false
         };
         var out = replace(destPath, 'TEAM', opts);
         out.on('data', function (data) {
@@ -51,8 +50,7 @@ describe('replace', function () {
           replace: 'codio',
           literal: true,
           wordRegexp: true,
-          ignoreCase: true,
-          cmd: ack
+          ignoreCase: true
         };
         var out = replace(destPath, 'team', opts);
         out.on('data', function (data) {

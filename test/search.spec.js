@@ -65,8 +65,7 @@ describe('search', function () {
     describe('--max-result-count', function () {
       it('should limit results', function (done) {
         var opts = {
-          maxResults: 1,
-          cmd: ack
+          maxResults: 1
         };
 
         helpers.streamToString(search('test/fixtures/filecount.txt', 'found', opts), function (err, result) {
@@ -83,8 +82,7 @@ describe('search', function () {
           literal: true,
           wordRegexp: true,
           ignoreCase: true,
-          context: 2,
-          cmd: ack
+          context: 2
         };
 
         helpers.streamToString(search(origPath, 'team', opts), function (err, result) {

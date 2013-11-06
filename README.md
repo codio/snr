@@ -4,6 +4,9 @@ Simple search and replace through commandline tools (`ack` and `perl`).
 
 ## Installation
 
+Make sure perl is installed on your system. Ack itself is bundled with the
+project.
+
 ```bash
 $ npm install -g snr
 ```
@@ -37,7 +40,6 @@ var options = {
   literal: false,
   wordRegexp: false,
   context: null,
-  cmd: 'ack'
 };
 
 // Search and replace return a stream with the output

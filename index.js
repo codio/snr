@@ -1,4 +1,5 @@
 var glob = require('glob');
+var path = require('path');
 var Readable = require('stream').Readable;
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
@@ -17,11 +18,11 @@ var defaultOptions = {
   literal: false,
   wordRegexp: false,
   context: 2,
-  cmd: 'ack',
   color: {
     lineno: 'yellow'
   }
 };
+var ackCmd = path.join(__dirname, 'bin', 'ack');
 
 // Search files
 //
@@ -115,7 +116,7 @@ var replace = function (files, pattern, opts) {
       if (error) return cb(error);
       if (files.length === 0) return console.error('No files found.');
 
-      var cmd = [opts.cmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
+      var cmd = [ackCmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', perlCmd, '-pi', '-e',
         '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
         'END{print "$count"}\''
@@ -203,7 +204,7 @@ function find(pattern, location, opts, cb) {
     if (files.length === 0) return console.error('No files found.');
 
     // Spawn the ack process
-    var child = spawn(opts.cmd, args.concat(pattern).concat(files));
+    var child = spawn(ackCmd, args.concat(pattern).concat(files));
 
     var stopIn = -1;
     var stopped = false;

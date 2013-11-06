@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
+/* global process */
+
 var search = require('../index').search;
 var replace = require('../index').replace;
 
-var sh = require('execSync');
 var dashdash = require('dashdash');
-
 var version = require('../package.json').version;
 
 // Argument Handling
@@ -88,10 +88,6 @@ if (opts.version) {
   process.exit(0);
 }
 
-
-// ack or ack-grep
-var cmd = sh.run('hash ack-grep 2>/dev/null') === 1 ? 'ack' : 'ack-grep';
-
 var options = {
   maxResults: opts.max_result_count,
   ignoreCase: opts.ignore_case,
@@ -100,10 +96,8 @@ var options = {
   colors: {
     lineno: opts.color_lineno
   },
-  context: opts.context,
-  cmd: cmd
+  context: opts.context
 };
-
 
 if (opts.replace) {
   options.replace = opts.replace;
