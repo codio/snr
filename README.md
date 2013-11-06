@@ -171,3 +171,7 @@ bsdglob and bash 4.1, where `**` only has special significance if it is the only
 thing in a path part.  That is, `a/**/b` will match `a/x/y/b`, but
 `a/**b` will not.
 
+## Changelog
+
+* `0.2.0` Bundle `ack@2.10` with snr.
+* `0.1.0` Initial release.
