@@ -112,8 +112,14 @@ var replace = function (files, pattern, opts) {
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
     // Execute globs
-    glob(locations, function (error, location) {
+    glob(locations, {mark: true}, function (error, location) {
       if (error) return cb(error);
+
+      // Filter out all directories
+      files = _.filter(files, function (file) {
+        return file.lastIndexOf('/') !== file.length - 1
+      });
+
       if (files.length === 0) return console.error('No files found.');
 
       var cmd = [ackCmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
@@ -198,8 +204,13 @@ function find(pattern, location, opts, cb) {
   var fileCount = 0;
 
   // Execute globs
-  glob(location, function (error, files) {
+  glob(location, {mark: true}, function (error, files) {
     if (error) return cb(error);
+
+    // Filter out all directories
+    files = _.filter(files, function (file) {
+      return file.lastIndexOf('/') !== file.length - 1
+    });
 
     if (files.length === 0) return console.error('No files found.');
 
