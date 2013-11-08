@@ -116,11 +116,11 @@ var replace = function (files, pattern, opts) {
       if (error) return cb(error);
 
       // Filter out all directories
-      files = _.filter(files, function (file) {
+      location = _.filter(location, function (file) {
         return file.lastIndexOf('/') !== file.length - 1
       });
 
-      if (files.length === 0) return console.error('No files found.');
+      if (location.length === 0) return console.error('No files found.');
 
       var cmd = [ackCmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
         '|xargs', perlCmd, '-pi', '-e',
