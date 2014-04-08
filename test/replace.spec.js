@@ -24,6 +24,22 @@ describe('replace', function () {
   });
 
   describe('options', function () {
+    describe('empty replace', function () {
+      it('should work with empty string', function () {
+        var dashdash = require('dashdash');
+        var options = {options: [{
+          name: 'replace',
+          type: 'string',
+          helpArg: 'REPlACE',
+          help: 'Replace all matches with REPLACE.'
+        }]};
+        var parser = dashdash.createParser(options);
+        var opts = parser.parse([ 'node', '/usr/bin/snr', '--replace', '', 'text', '*.html' ]);
+        expect(typeof opts.replace === 'string').to.be.eql(true);
+        opts = parser.parse([ 'node', '/usr/bin/snr', 'text', '*.html' ]);
+        expect(typeof opts.replace === 'string').to.be.eql(false);
+      });
+    });
     describe('-l literal', function () {
       it('should work', function (done) {
         var opts = {

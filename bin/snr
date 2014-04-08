@@ -99,7 +99,7 @@ var options = {
   context: opts.context
 };
 
-if (opts.replace) {
+if (typeof opts.replace === 'string') {
   options.replace = opts.replace;
   return replace(opts._args.slice(1), opts._args[0], options).pipe(process.stdout);
 }
