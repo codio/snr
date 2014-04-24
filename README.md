@@ -173,6 +173,7 @@ thing in a path part.  That is, `a/**/b` will match `a/x/y/b`, but
 
 ## Changelog
 
+* `0.2.3` Allow empty strings in replace.
 * `0.2.1` Don't try to search in directories.
 * `0.2.0` Bundle `ack@2.10` with snr.
 * `0.1.0` Initial release.
