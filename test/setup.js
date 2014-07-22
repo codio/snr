@@ -8,7 +8,6 @@ global.stream = require('stream');
 global.expect = require('chai').expect;
 global.sinon = require('sinon');
 global.SandboxedModule = require('sandboxed-module');
-global.sh = require('execSync');
 global.fs = require('fs-extra');
 global.helpers = require('./helpers');
 
