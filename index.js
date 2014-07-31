@@ -117,30 +117,20 @@ var replace = function (files, pattern, opts) {
 
       // Filter out all directories
       files = _.filter(files, function (file) {
-        return file.lastIndexOf('/') !== file.length - 1
+        return file.lastIndexOf('/') !== file.length - 1;
       });
 
       if (files.length === 0) return console.error('No files found.');
-
-      var cmd = [ackCmd].concat(opts._args).concat(['"' + pattern + '"']).concat(location).concat([
-        '|xargs', perlCmd, '-pi', '-e',
-        '\'$count += s/' + perlPattern + '/' + opts.replace + '/' + perlArgs.join('') + ';',
-        'END{print "$count"}\''
-      ]).join(' ');
-
-      // Exec the replace process
-      exec(cmd, function (error, stdout, stderr) {
-
-        if (error) return cb(error);
-
-        stdout = stdout.trim().replace(/\\n/g, '');
-        var count = parseInt(stdout, 10);
-
-        // Empty result is converted to NaN
-        count = _.isNaN(count) ? 0 : count;
-
-        cb(null, count);
-      });
+      startProcess(location.join('\n'),
+        'xargs', [ackCmd].concat(opts._args).concat([pattern]),
+        function (error, out, err) {
+          startProcess(out, 'xargs', [ perlCmd, '-pi', '-e',
+            '$count += s/' + perlPattern + '/' + opts.replace + '/' +
+            perlArgs.join('') + ';END{print "$count"}'
+            ],
+            onReplaceComplite.bind(null, cb));
+        }
+      );
     });
 
   }, function (err, results) {
@@ -159,6 +149,45 @@ var replace = function (files, pattern, opts) {
 
   return opts._readable;
 };
+
+
+function startProcess(stdin, cmd, args, cb) {
+  var out = [];
+  var err = [];
+  var child =  spawn(cmd, args);
+
+  if (_.isString(stdin) && stdin.length > 0) {
+    child.stdin.setEncoding = 'utf-8';
+    child.stdin.write(stdin);
+    child.stdin.end();
+  }
+
+  child.stdin.end();
+
+  child.stdout.on('data', function (data) {
+    out.push('' + data);
+  });
+
+  child.stderr.on('data', function (data) {
+    err.push('' + data);
+  });
+
+  child.on('close', function (code) {
+    cb(code !== 0, out.join(''), err.join(''));
+  });
+}
+
+function onReplaceComplite(cb, error, stdout, stderr) {
+  if (error) return cb(error);
+
+  stdout = stdout.trim().replace(/\\n/g, '');
+  var count = parseInt(stdout, 10);
+
+  // Empty result is converted to NaN
+  count = _.isNaN(count) ? 0 : count;
+
+  cb(null, count);
+}
 
 // Generate the arguments array for ack
 //
@@ -209,13 +238,17 @@ function find(pattern, location, opts, cb) {
 
     // Filter out all directories
     files = _.filter(files, function (file) {
-      return file.lastIndexOf('/') !== file.length - 1
+      return file.lastIndexOf('/') !== file.length - 1;
     });
 
     if (files.length === 0) return console.error('No files found.');
 
     // Spawn the ack process
-    var child = spawn(ackCmd, args.concat(pattern).concat(files));
+    var child = spawn('xargs', [ackCmd].concat(args).concat(pattern));
+
+    child.stdin.setEncoding = 'utf-8';
+    child.stdin.write(files.join('\n'));
+    child.stdin.end();
 
     var stopIn = -1;
     var stopped = false;

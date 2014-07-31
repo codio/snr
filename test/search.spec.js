@@ -31,7 +31,9 @@ describe('search', function () {
     it('should return matches', function (done) {
       spawn.returns({
         stdout: fs.createReadStream(__dirname + '/fixtures/simple.txt'),
-        stderr: helpers.emptyStream()
+        stderr: helpers.emptyStream(),
+        stdin: helpers.emptyWriteStream()
+
       });
 
       glob.yields(null, 'index.js');
@@ -44,7 +46,8 @@ describe('search', function () {
     it('should count the number of matched files', function (done) {
       spawn.returns({
         stdout: fs.createReadStream(__dirname + '/fixtures/filecount.txt'),
-        stderr: helpers.emptyStream()
+        stderr: helpers.emptyStream(),
+        stdin: helpers.emptyWriteStream()
       });
 
       glob.yields(null, 'index.js');

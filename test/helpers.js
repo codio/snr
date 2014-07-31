@@ -20,3 +20,8 @@ exports.emptyStream = function () {
   return s;
 };
 
+exports.emptyWriteStream = function () {
+  var s = new stream.Writable();
+  s._write = function () {};
+  return s;
+};
