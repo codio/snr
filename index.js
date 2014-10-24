@@ -46,6 +46,7 @@ var search = function (files, pattern, opts) {
   opts._args = makeArgs(opts, ['-H', '--flush', '--heading', '--color']);
 
   files = _.isArray(files) ? files : [files];
+  files = _.uniq(files);
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (file, cb) {
@@ -88,7 +89,7 @@ var replace = function (files, pattern, opts) {
   opts._readable._read = function (size) {};
 
   files = _.isArray(files) ? files : [files];
-
+  files = _.uniq(files);
 
   // Default options
   opts = _.defaults(opts || {}, defaultOptions);
@@ -108,44 +109,50 @@ var replace = function (files, pattern, opts) {
   // Whole word option
   if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
 
-
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
     // Execute globs
     glob(locations, {mark: true}, function (error, location) {
       if (error) return cb(error);
-
-      // Filter out all directories
-      files = _.filter(files, function (file) {
-        return file.lastIndexOf('/') !== file.length - 1;
+      location = _.uniq(location);
+      location = _.filter(location, function (item) {
+        return item.lastIndexOf('/') !== item.length - 1;
       });
-
-      if (files.length === 0) return console.error('No files found.');
-      startProcess(location.join('\n'),
-        'xargs', [ackCmd].concat(opts._args).concat([pattern]),
-        function (error, out, err) {
-          startProcess(out, 'xargs', [ perlCmd, '-pi', '-e',
-            '$count += s/' + perlPattern + '/' + opts.replace + '/' +
-            perlArgs.join('') + ';END{print "$count"}'
-            ],
-            onReplaceComplite.bind(null, cb));
-        }
-      );
+      return cb(null, location);
     });
-
   }, function (err, results) {
     if (err) {
       console.error(err);
       process.exit(1);
     }
-    results = results || [];
-    var total = results.reduce(function (a, b) {
-      return a + b;
-    }, 0);
-    opts._readable.push('Replaced ' + total + ' occurrence(s).\n');
-    opts._readable.push(null);
-  });
+    var files = _.union.apply(null, results);
+    if (files.length === 0) {
+      console.error('No files found.');
+      process.exit(1);
+    }
+    startProcess(files.join('\n'),
+      'xargs', [ackCmd].concat(opts._args).concat([pattern]),
+      function (error, out, err) {
+        startProcess(out, 'xargs', [ perlCmd, '-pi', '-e',
+          '$count += s/' + perlPattern + '/' + opts.replace + '/' +
+          perlArgs.join('') + ';END{print "$count"}'
+          ],
+          function (error, stdout, stderr) {
+            if (error) {
+              console.error(err);
+              process.exit(1);
+            }
+            stdout = stdout.trim().replace(/\\n/g, '');
+            var count = parseInt(stdout, 10);
 
+            // Empty result is converted to NaN
+            count = _.isNaN(count) ? 0 : count;
+            opts._readable.push('Replaced ' + count + ' occurrence(s).\n');
+            opts._readable.push(null);
+          });
+      }
+    );
+  });
 
   return opts._readable;
 };
@@ -175,18 +182,6 @@ function startProcess(stdin, cmd, args, cb) {
   child.on('close', function (code) {
     cb(code !== 0, out.join(''), err.join(''));
   });
-}
-
-function onReplaceComplite(cb, error, stdout, stderr) {
-  if (error) return cb(error);
-
-  stdout = stdout.trim().replace(/\\n/g, '');
-  var count = parseInt(stdout, 10);
-
-  // Empty result is converted to NaN
-  count = _.isNaN(count) ? 0 : count;
-
-  cb(null, count);
 }
 
 // Generate the arguments array for ack
