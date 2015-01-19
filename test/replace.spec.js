@@ -81,4 +81,42 @@ describe('replace', function () {
       });
     });
   });
+  describe('issues', function () {
+    it('dots', function (done) {
+      var opts = {
+        replace: '<..name>',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      };
+      var out = replace(destPath, '<name>', opts);
+      out.on('data', function (data) {
+        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
+      });
+      out.on('end', function () {
+        var result = fs.readFileSync(destPath).toString();
+        var expected = fs.readFileSync(__dirname + '/fixtures/dotsExpected.txt').toString();
+        expect(result).to.be.eql(expected);
+        done();
+      });
+    });
+    it('slashes', function (done) {
+      var opts = {
+        replace: '<../name\\hello>',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      };
+      var out = replace(destPath, '<name>', opts);
+      out.on('data', function (data) {
+        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
+      });
+      out.on('end', function () {
+        var result = fs.readFileSync(destPath).toString();
+        var expected = fs.readFileSync(__dirname + '/fixtures/slashesExpected.txt').toString();
+        expect(result).to.be.eql(expected);
+        done();
+      });
+    });
+  });
 });

@@ -100,6 +100,13 @@ var replace = function (files, pattern, opts) {
   var perlArgs = ['g'];
   var perlPattern = pattern;
 
+  // Escape backward slashes in the replace pattern
+  opts.replace = opts.replace.replace(/([^\\])\\/g, '$1\\\\');
+
+  // Escape forward slashes in the replace pattern
+  opts.replace = opts.replace.replace(/([^\\])\//g, '$1\\/');
+
+
   // Ignore case option
   if (_.contains(opts._args, '-i')) perlArgs.push('i');
 
@@ -108,6 +115,8 @@ var replace = function (files, pattern, opts) {
 
   // Whole word option
   if (_.contains(opts._args, '-w')) perlPattern = '\\b' + perlPattern + '\\b';
+
+
 
   // Execute the search in series on all patterns.
   async.mapSeries(files, function (locations, cb) {
