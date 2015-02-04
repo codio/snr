@@ -118,5 +118,23 @@ describe('replace', function () {
         done();
       });
     });
+    it('single slash', function (done) {
+      var opts = {
+        replace: '/',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      };
+      var out = replace(destPath, '<name>', opts);
+      out.on('data', function (data) {
+        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
+      });
+      out.on('end', function () {
+        var result = fs.readFileSync(destPath).toString();
+        var expected = fs.readFileSync(__dirname + '/fixtures/singleSlashExpected.txt').toString();
+        expect(result).to.be.eql(expected);
+        done();
+      });
+    });
   });
 });

@@ -101,11 +101,10 @@ var replace = function (files, pattern, opts) {
   var perlPattern = pattern;
 
   // Escape backward slashes in the replace pattern
-  opts.replace = opts.replace.replace(/([^\\])\\/g, '$1\\\\');
+  opts.replace = opts.replace.replace(/(^|[^\\])\\/g, '$1\\\\');
 
   // Escape forward slashes in the replace pattern
-  opts.replace = opts.replace.replace(/([^\\])\//g, '$1\\/');
-
+  opts.replace = opts.replace.replace(/(^|[^\\])\//g, '$1\\/');
 
   // Ignore case option
   if (_.contains(opts._args, '-i')) perlArgs.push('i');
