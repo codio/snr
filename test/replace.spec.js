@@ -1,7 +1,7 @@
 // Replace Tests
 // -------------
 
-/* global describe, beforeEach, afterEach, it, childProcess, SandboxedModule, fs, helpers, expect, ack */
+/* global describe, beforeEach, afterEach, it, childProcess, fs, helpers, expect, ack */
 
 describe('replace', function () {
   var replace;
@@ -132,6 +132,24 @@ describe('replace', function () {
       out.on('end', function () {
         var result = fs.readFileSync(destPath).toString();
         var expected = fs.readFileSync(__dirname + '/fixtures/singleSlashExpected.txt').toString();
+        expect(result).to.be.eql(expected);
+        done();
+      });
+    });
+    it('find with forward slash', function (done) {
+      var opts = {
+        replace: 'www.codio.com/hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      };
+      var out = replace(destPath, 'testingtxt.org/', opts);
+      out.on('data', function (data) {
+        expect(data.toString()).to.be.eql('Replaced 1 occurrence(s).\n');
+      });
+      out.on('end', function () {
+        var result = fs.readFileSync(destPath).toString();
+        var expected = fs.readFileSync(__dirname + '/fixtures/findSlashExpected.txt').toString();
         expect(result).to.be.eql(expected);
         done();
       });

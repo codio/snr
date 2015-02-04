@@ -100,6 +100,10 @@ var replace = function (files, pattern, opts) {
   var perlArgs = ['g'];
   var perlPattern = pattern;
 
+
+  // Escape forward slashes in the find pattern
+  perlPattern = perlPattern.replace(/(^|[^\\])\//g, '$1\\/');
+
   // Escape backward slashes in the replace pattern
   opts.replace = opts.replace.replace(/(^|[^\\])\\/g, '$1\\\\');
 
