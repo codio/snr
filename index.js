@@ -76,6 +76,24 @@ var search = function (files, pattern, opts) {
   return opts._readable;
 };
 
+// Do a negative look behind replace
+//
+// input    - String, input string.
+// nonMatch - String, what should not be matched
+// match    - String, the part that should be matched
+// rPattern - String, the string to replace match with
+//
+// Returns the replaced string.
+function negativeLookBehind(input, nonMatch, match, rPattern) {
+
+  var re = new RegExp('(' + nonMatch  + ')?' + match, 'g');
+
+  return input.replace(re, function ($0, $1) {
+    return $1 ? $0 : rPattern;
+  });
+}
+
+
 // Replace in files
 //
 // files   - File patterns to search through.
@@ -100,15 +118,14 @@ var replace = function (files, pattern, opts) {
   var perlArgs = ['g'];
   var perlPattern = pattern;
 
-
   // Escape forward slashes in the find pattern
-  perlPattern = perlPattern.replace(/(^|[^\\])\//g, '$1\\/');
+  perlPattern = negativeLookBehind(perlPattern, '\\\\', '\\/', '\\/');
 
   // Escape backward slashes in the replace pattern
-  opts.replace = opts.replace.replace(/(^|[^\\])\\/g, '$1\\\\');
+  opts.replace = negativeLookBehind(opts.replace, '\\\\', '\\\\' , '\\\\');
 
   // Escape forward slashes in the replace pattern
-  opts.replace = opts.replace.replace(/(^|[^\\])\//g, '$1\\/');
+  opts.replace = negativeLookBehind(opts.replace, '\\\\', '\\/', '\\/');
 
   // Ignore case option
   if (_.contains(opts._args, '-i')) perlArgs.push('i');
