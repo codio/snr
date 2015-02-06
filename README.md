@@ -173,6 +173,7 @@ thing in a path part.  That is, `a/**/b` will match `a/x/y/b`, but
 
 ## Changelog
 
+* `0.3.0` Fix escaping of meta characters in replacements. Code Refactoring.
 * `0.2.6` Fixes for list of files in replacement.
 * `0.2.5` Fixes for long running searches and replacements.
 * `0.2.4` Cleanup dependencies. Run tests on `0.11`.
