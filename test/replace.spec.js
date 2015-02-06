@@ -3,12 +3,23 @@
 
 /* global describe, beforeEach, afterEach, it, childProcess, fs, helpers, expect, ack */
 
+var _ = require('lodash');
+
 describe('replace', function () {
   var replace;
-  var destPath = __dirname + '/fixtures/simpleReplace.txt';
+  var destPath = __dirname + '/fixtures/__start.txt';
 
 
-  function testReplace(pattern, opts, matchCount, fixture, done) {
+  function testReplace(pattern, opts, matchCount, fixture, original, done) {
+    if (_.isFunction(original)) {
+      done = original;
+      original = 'simpleOriginal.txt';
+    }
+
+    // Copy replace file
+    var origPath = __dirname + '/fixtures/' + original;
+    fs.copySync(origPath, destPath);
+
     var out = replace(destPath, pattern, opts);
 
     out.on('data', function (data) {
@@ -23,12 +34,8 @@ describe('replace', function () {
     });
   }
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     replace = require('../index').replace;
-
-    // Copy replace file
-    var origPath = __dirname + '/fixtures/simpleOriginal.txt';
-    fs.copy(origPath, destPath, done);
   });
 
   afterEach(function (done) {
@@ -134,6 +141,14 @@ describe('replace', function () {
         wordRegexp: false,
         ignoreCase: true
       }, 1, 'dollarExpected', done);
+    });
+    it('find dollar sign', function (done) {
+      testReplace('$', {
+        replace: 'hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1, 'findDollarExpected', 'findDollarOriginal.txt', done);
     });
   });
 });
