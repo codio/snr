@@ -134,6 +134,14 @@ describe('replace', function () {
         ignoreCase: true
       }, 1 ,'findSlashExpected', done);
     });
+    it('find with backward slash', function (done) {
+      testReplace('testingtxt.org\\', {
+        replace: 'hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1 ,'findBackwardSlashExpected', 'findBackwardSlashOriginal.txt', done);
+    });
     it('replace dollar sign', function (done) {
       testReplace('HTML5', {
         replace: '$',
