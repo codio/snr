@@ -7,6 +7,22 @@ describe('replace', function () {
   var replace;
   var destPath = __dirname + '/fixtures/simpleReplace.txt';
 
+
+  function testReplace(pattern, opts, matchCount, fixture, done) {
+    var out = replace(destPath, pattern, opts);
+
+    out.on('data', function (data) {
+      expect(data.toString()).to.be.eql('Replaced ' + matchCount + ' occurrence(s).\n');
+    });
+
+    out.on('end', function () {
+      var result = fs.readFileSync(destPath).toString();
+      var expected = fs.readFileSync(__dirname + '/fixtures/' + fixture + '.txt').toString();
+      expect(result).to.be.eql(expected);
+      done();
+    });
+  }
+
   beforeEach(function (done) {
     replace = require('../index').replace;
 
@@ -40,155 +56,84 @@ describe('replace', function () {
         expect(typeof opts.replace === 'string').to.be.eql(false);
       });
     });
+
     describe('-l literal', function () {
       it('should work', function (done) {
-        var opts = {
+        testReplace('TEAM', {
           replace: 'codio',
           literal: true,
           wordRegexp: false,
           ignoreCase: false
-        };
-        var out = replace(destPath, 'TEAM', opts);
-        out.on('data', function (data) {
-          expect(data.toString()).to.be.eql('Replaced 1 occurrence(s).\n');
-        });
-        out.on('end', function () {
-          var result = fs.readFileSync(destPath).toString();
-          var expected = fs.readFileSync(__dirname + '/fixtures/literalExpected.txt').toString();
-          expect(result).to.be.eql(expected);
-          done();
-        });
+        }, 1, 'literalExpected', done);
       });
     });
     describe('-w whole word', function () {
       it('should work with literal option', function (done) {
-        var opts = {
+        testReplace('team', {
           replace: 'codio',
           literal: true,
           wordRegexp: true,
           ignoreCase: true
-        };
-        var out = replace(destPath, 'team', opts);
-        out.on('data', function (data) {
-          expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-        });
-        out.on('end', function () {
-          var result = fs.readFileSync(destPath).toString();
-          var expected = fs.readFileSync(__dirname + '/fixtures/simpleExpected.txt').toString();
-          expect(result).to.be.eql(expected);
-          done();
-        });
+        }, 2, 'simpleExpected', done);
       });
     });
   });
   describe('issues', function () {
     it('dots', function (done) {
-      var opts = {
+      testReplace('<name>', {
         replace: '<..name>',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, '<name>', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/dotsExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 2, 'dotsExpected', done);
     });
     it('slashes', function (done) {
-      var opts = {
+      testReplace('<name>', {
         replace: '<../name\\hello>',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, '<name>', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/slashesExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 2, 'slashesExpected', done);
     });
     it('slashes no escaping if not literal', function (done) {
-      var opts = {
+      testReplace('<name>', {
         replace: '<..\\/name>',
         literal: false,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, '<name>', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/slashesNonLiteralExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 2, 'slashesNonLiteralExpected', done);
     });
     it('multiple slashes', function (done) {
-      var opts = {
+      testReplace('<name>', {
         replace: '<..//name\\hello>',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, '<name>', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/slashesMultExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 2, 'slashesMultExpected', done);
     });
     it('single slash', function (done) {
-      var opts = {
+      testReplace('<name>', {
         replace: '/',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, '<name>', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/singleSlashExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 2, 'singleSlashExpected', done);
     });
     it('find with forward slash', function (done) {
-      var opts = {
+      testReplace('testingtxt.org/', {
         replace: 'www.codio.com/hello',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      };
-      var out = replace(destPath, 'testingtxt.org/', opts);
-      out.on('data', function (data) {
-        expect(data.toString()).to.be.eql('Replaced 1 occurrence(s).\n');
-      });
-      out.on('end', function () {
-        var result = fs.readFileSync(destPath).toString();
-        var expected = fs.readFileSync(__dirname + '/fixtures/findSlashExpected.txt').toString();
-        expect(result).to.be.eql(expected);
-        done();
-      });
+      }, 1 ,'findSlashExpected', done);
+    });
+    it('find with forward slash', function (done) {
+      testReplace('testingtxt.org/', {
+        replace: 'www.codio.com/hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1, 'findSlashExpected', done);
     });
   });
 });
