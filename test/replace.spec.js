@@ -127,13 +127,13 @@ describe('replace', function () {
         ignoreCase: true
       }, 1 ,'findSlashExpected', done);
     });
-    it('find with forward slash', function (done) {
-      testReplace('testingtxt.org/', {
-        replace: 'www.codio.com/hello',
+    it('replace dollar sign', function (done) {
+      testReplace('HTML5', {
+        replace: '$',
         literal: true,
         wordRegexp: false,
         ignoreCase: true
-      }, 1, 'findSlashExpected', done);
+      }, 1, 'dollarExpected', done);
     });
   });
 });
