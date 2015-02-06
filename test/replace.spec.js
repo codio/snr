@@ -1,18 +1,41 @@
 // Replace Tests
 // -------------
 
-/* global describe, beforeEach, afterEach, it, childProcess, SandboxedModule, fs, helpers, expect, ack */
+/* global describe, beforeEach, afterEach, it, childProcess, fs, helpers, expect, ack */
+
+var _ = require('lodash');
 
 describe('replace', function () {
   var replace;
-  var destPath = __dirname + '/fixtures/simpleReplace.txt';
+  var destPath = __dirname + '/fixtures/__start.txt';
 
-  beforeEach(function (done) {
-    replace = require('../index').replace;
+
+  function testReplace(pattern, opts, matchCount, fixture, original, done) {
+    if (_.isFunction(original)) {
+      done = original;
+      original = 'simpleOriginal.txt';
+    }
 
     // Copy replace file
-    var origPath = __dirname + '/fixtures/simpleOriginal.txt';
-    fs.copy(origPath, destPath, done);
+    var origPath = __dirname + '/fixtures/' + original;
+    fs.copySync(origPath, destPath);
+
+    var out = replace(destPath, pattern, opts);
+
+    out.on('data', function (data) {
+      expect(data.toString()).to.be.eql('Replaced ' + matchCount + ' occurrence(s).\n');
+    });
+
+    out.on('end', function () {
+      var result = fs.readFileSync(destPath).toString();
+      var expected = fs.readFileSync(__dirname + '/fixtures/' + fixture + '.txt').toString();
+      expect(result).to.be.eql(expected);
+      done();
+    });
+  }
+
+  beforeEach(function () {
+    replace = require('../index').replace;
   });
 
   afterEach(function (done) {
@@ -40,45 +63,100 @@ describe('replace', function () {
         expect(typeof opts.replace === 'string').to.be.eql(false);
       });
     });
+
     describe('-l literal', function () {
       it('should work', function (done) {
-        var opts = {
+        testReplace('TEAM', {
           replace: 'codio',
           literal: true,
           wordRegexp: false,
           ignoreCase: false
-        };
-        var out = replace(destPath, 'TEAM', opts);
-        out.on('data', function (data) {
-          expect(data.toString()).to.be.eql('Replaced 1 occurrence(s).\n');
-        });
-        out.on('end', function () {
-          var result = fs.readFileSync(destPath).toString();
-          var expected = fs.readFileSync(__dirname + '/fixtures/literalExpected.txt').toString();
-          expect(result).to.be.eql(expected);
-          done();
-        });
+        }, 1, 'literalExpected', done);
       });
     });
     describe('-w whole word', function () {
       it('should work with literal option', function (done) {
-        var opts = {
+        testReplace('team', {
           replace: 'codio',
           literal: true,
           wordRegexp: true,
           ignoreCase: true
-        };
-        var out = replace(destPath, 'team', opts);
-        out.on('data', function (data) {
-          expect(data.toString()).to.be.eql('Replaced 2 occurrence(s).\n');
-        });
-        out.on('end', function () {
-          var result = fs.readFileSync(destPath).toString();
-          var expected = fs.readFileSync(__dirname + '/fixtures/simpleExpected.txt').toString();
-          expect(result).to.be.eql(expected);
-          done();
-        });
+        }, 2, 'simpleExpected', done);
       });
+    });
+  });
+  describe('issues', function () {
+    it('dots', function (done) {
+      testReplace('<name>', {
+        replace: '<..name>',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 2, 'dotsExpected', done);
+    });
+    it('slashes', function (done) {
+      testReplace('<name>', {
+        replace: '<../name\\hello>',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 2, 'slashesExpected', done);
+    });
+    it('slashes no escaping if not literal', function (done) {
+      testReplace('<name>', {
+        replace: '<..\\/name>',
+        literal: false,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 2, 'slashesNonLiteralExpected', done);
+    });
+    it('multiple slashes', function (done) {
+      testReplace('<name>', {
+        replace: '<..//name\\hello>',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 2, 'slashesMultExpected', done);
+    });
+    it('single slash', function (done) {
+      testReplace('<name>', {
+        replace: '/',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 2, 'singleSlashExpected', done);
+    });
+    it('find with forward slash', function (done) {
+      testReplace('testingtxt.org/', {
+        replace: 'www.codio.com/hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1 ,'findSlashExpected', done);
+    });
+    it('find with backward slash', function (done) {
+      testReplace('testingtxt.org\\', {
+        replace: 'hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1 ,'findBackwardSlashExpected', 'findBackwardSlashOriginal.txt', done);
+    });
+    it('replace dollar sign', function (done) {
+      testReplace('HTML5', {
+        replace: '$',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1, 'dollarExpected', done);
+    });
+    it('find dollar sign', function (done) {
+      testReplace('$', {
+        replace: 'hello',
+        literal: true,
+        wordRegexp: false,
+        ignoreCase: true
+      }, 1, 'findDollarExpected', 'findDollarOriginal.txt', done);
     });
   });
 });

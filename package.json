@@ -7,7 +7,8 @@
     "snr": "bin/snr"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/setup.js test/*.spec.js"
+    "test": "./node_modules/.bin/mocha --check-leaks --reporter spec --ui bdd test/setup.js test/*.spec.js",
+    "lint": "./node_modules/jshint/bin/jshint index.js lib/*.js"
   },
   "author": "Friedel Ziegelmayer <dignifiedquire@gmail.com>",
   "license": "MIT",
@@ -19,11 +20,12 @@
     "lodash": "~2.2.1"
   },
   "devDependencies": {
-    "chai": "~1.8.1",
-    "sandboxed-module": "~0.3.0",
-    "sinon": "~1.7.3",
     "better-stack-traces": "~1.0.0",
+    "chai": "~1.8.1",
     "fs-extra": "~0.8.0",
-    "mocha": "~1.13.0"
+    "jshint": "^2.6.0",
+    "mocha": "~1.13.0",
+    "sandboxed-module": "~0.3.0",
+    "sinon": "~1.7.3"
   }
 }

@@ -1,0 +1,15 @@
+# testingtxt.org/
+# The $ testinging responsiale & technology colophon
+teaming
+# team
+testing
+    <name> -- <role> -- TEAM testing <twitter>
+
+# testinging
+
+    <name>
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3
+    Normalize.css, jQuery, testing Modernizr
