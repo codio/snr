@@ -1,6 +1,6 @@
 {
   "name": "snr",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "Simple search and replace tool.",
   "main": "index.js",
   "bin": {
